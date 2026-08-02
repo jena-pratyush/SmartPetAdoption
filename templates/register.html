@@ -1,0 +1,88 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5" style="max-width:700px;">
+
+    <h2 class="mb-4">Create Your Account</h2>
+
+    <form method="POST">
+
+        <div class="mb-3">
+            <label>Full Name</label>
+            <input
+                type="text"
+                class="form-control"
+                name="full_name"
+                required>
+        </div>
+
+        <div class="mb-3">
+            <label>Email</label>
+            <input
+                type="email"
+                class="form-control"
+                name="email"
+                required>
+        </div>
+
+        <div class="mb-3">
+            <label>Phone</label>
+            <input
+                type="text"
+                class="form-control"
+                name="phone">
+        </div>
+
+        <div class="mb-3">
+            <label>Password</label>
+            <input
+                type="password"
+                class="form-control"
+                name="password"
+                required>
+        </div>
+
+        <div class="mb-3">
+            <label>Confirm Password</label>
+            <input
+                type="password"
+                class="form-control"
+                name="confirm_password"
+                required>
+        </div>
+
+        <div class="mb-3">
+
+            <label>Register As</label>
+
+            <select
+                class="form-select"
+                name="role">
+
+                <option value="adopter">
+                    Adopter
+                </option>
+
+                <option value="owner">
+                    Pet Owner / Shelter
+                </option>
+
+            </select>
+
+        </div>
+
+        <button
+            class="btn btn-success w-100">
+
+            Register
+
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

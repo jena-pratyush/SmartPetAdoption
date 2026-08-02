@@ -1,21 +1,22 @@
 from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
 from config import Config
+from extensions import db
+from models import User
+from routes.auth import auth
 
-# Initialize Flask
 app = Flask(__name__)
-
-# Load configuration
 app.config.from_object(Config)
 
-# Initialize database
-db = SQLAlchemy(app)
+db.init_app(app)
 
-# Home Route
+app.register_blueprint(auth)
+
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# Run the application
+with app.app_context():
+    db.create_all()
+
 if __name__ == "__main__":
     app.run(debug=True)
