@@ -1,0 +1,22 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.hero {
+    background: linear-gradient(135deg, #198754, #4CAF50);
+    color: white;
+    padding: 100px 0;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.feature-card {
+    transition: 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+}
