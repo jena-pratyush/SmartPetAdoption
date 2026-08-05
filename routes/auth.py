@@ -1,11 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from werkzeug.security import generate_password_hash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from extensions import db
 from models.user import User
 
 auth = Blueprint("auth", __name__)
-
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():
@@ -51,7 +50,35 @@ def register():
 
     return render_template("register.html")
 
-
-@auth.route("/login")
+@auth.route("/login", methods=["GET", "POST"])
 def login():
+
+    if request.method == "POST":
+
+        email = request.form["email"]
+        password = request.form["password"]
+
+        user = User.query.filter_by(email=email).first()
+
+        if user and check_password_hash(user.password, password):
+
+            session["user_id"] = user.id
+            session["user_name"] = user.full_name
+            session["role"] = user.role
+
+            flash("Login successful!", "success")
+
+            return redirect(url_for("dashboard"))
+
+        flash("Invalid email or password!", "danger")
+
     return render_template("login.html")
+
+@auth.route("/logout")
+def logout():
+
+    session.clear()
+
+    flash("Logged out successfully.", "info")
+
+    return redirect(url_for("auth.login"))

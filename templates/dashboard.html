@@ -1,0 +1,35 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+<h2>Welcome {{ session.user_name }} 👋</h2>
+
+<p>You are logged in.</p>
+
+<div class="list-group mt-4">
+
+<a href="#" class="list-group-item">
+🐶 Browse Pets
+</a>
+
+<a href="#" class="list-group-item">
+❤️ Favourite Pets
+</a>
+
+<a href="#" class="list-group-item">
+📋 My Applications
+</a>
+
+<a href="/logout" class="list-group-item text-danger">
+Logout
+</a>
+
+</div>
+
+</div>
+
+{% endblock %}
