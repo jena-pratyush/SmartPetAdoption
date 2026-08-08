@@ -7,6 +7,7 @@ from models.pet import Pet
 from routes.auth import auth
 from routes.pet import pets
 
+
 app = Flask(__name__)
 app.config.from_object(Config)
 

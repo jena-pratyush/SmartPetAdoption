@@ -1,3 +1,96 @@
-<h1>Available Pets</h1>
+{% extends "layouts/base.html" %}
 
-<a href="/pets/add">Add Pet</a>
+{% block title %}Available Pets{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2>Available Pets 🐾</h2>
+            <p class="text-muted">
+                Find a loving pet waiting for a forever home.
+            </p>
+        </div>
+
+        {% if session.get("user_id") %}
+            <a href="{{ url_for('pets.add_pet') }}"
+               class="btn btn-success">
+                + Add Pet
+            </a>
+        {% endif %}
+
+    </div>
+
+
+    {% if pets %}
+
+        <div class="row">
+
+            {% for pet in pets %}
+
+                <div class="col-md-4 mb-4">
+
+                    <div class="card h-100 shadow-sm">
+
+                        <div class="card-body">
+
+                            <h4 class="card-title">
+                                🐶 {{ pet.name }}
+                            </h4>
+
+                            <p class="card-text">
+
+                                <strong>Species:</strong>
+                                {{ pet.species }}
+
+                                <br>
+
+                                <strong>Breed:</strong>
+                                {{ pet.breed or "Not specified" }}
+
+                                <br>
+
+                                <strong>Age:</strong>
+                                {{ pet.age }} years
+
+                                <br>
+
+                                <strong>Gender:</strong>
+                                {{ pet.gender }}
+
+                            </p>
+
+                            <p class="card-text">
+                                {{ pet.description }}
+                            </p>
+
+                            <span class="badge bg-success">
+                                {{ pet.status }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-info">
+
+            No pets are currently available for adoption.
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

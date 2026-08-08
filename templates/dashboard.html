@@ -12,8 +12,12 @@
 
 <div class="list-group mt-4">
 
-<a href="#" class="list-group-item">
-🐶 Browse Pets
+<a href="{{ url_for('pets.pet_list') }}" class="list-group-item">
+    🐶 Browse Pets
+</a>
+
+<a href="{{ url_for('pets.add_pet') }}" class="list-group-item">
+    ➕ Add a Pet
 </a>
 
 <a href="#" class="list-group-item">
