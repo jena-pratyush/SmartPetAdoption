@@ -16,6 +16,72 @@ def pet_list():
         pets=all_pets
     )
 
+@pets.route("/pets/<int:pet_id>")
+def pet_details(pet_id):
+
+    pet = Pet.query.get_or_404(pet_id)
+
+    return render_template(
+        "pets/details.html",
+        pet=pet
+    )
+
+@pets.route("/pets/<int:pet_id>/edit", methods=["GET", "POST"])
+def edit_pet(pet_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    pet = Pet.query.get_or_404(pet_id)
+
+    # Only the owner who created the pet can edit it
+    if pet.owner_id != session["user_id"]:
+        flash("You are not allowed to edit this pet.", "danger")
+        return redirect(url_for("pets.pet_details", pet_id=pet.id))
+
+    if request.method == "POST":
+
+        pet.name = request.form["name"]
+        pet.species = request.form["species"]
+        pet.breed = request.form["breed"]
+        pet.age = request.form["age"]
+        pet.gender = request.form["gender"]
+        pet.description = request.form["description"]
+
+        db.session.commit()
+
+        flash("Pet updated successfully!", "success")
+
+        return redirect(
+            url_for("pets.pet_details", pet_id=pet.id)
+        )
+
+    return render_template(
+        "pets/edit.html",
+        pet=pet
+    )
+
+@pets.route("/pets/<int:pet_id>/delete", methods=["POST"])
+def delete_pet(pet_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    pet = Pet.query.get_or_404(pet_id)
+
+    # Only the owner can delete the pet
+    if pet.owner_id != session["user_id"]:
+        flash("You are not allowed to delete this pet.", "danger")
+        return redirect(url_for("pets.pet_details", pet_id=pet.id))
+
+    db.session.delete(pet)
+    db.session.commit()
+
+    flash("Pet deleted successfully.", "success")
+
+    return redirect(url_for("pets.pet_list"))
 
 @pets.route("/pets/add", methods=["GET", "POST"])
 def add_pet():

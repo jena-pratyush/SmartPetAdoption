@@ -1,0 +1,107 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ pet.name }}{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <a href="{{ url_for('pets.pet_list') }}"
+       class="btn btn-secondary mb-4">
+        ← Back to Pets
+    </a>
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <h1>{{ pet.name }} 🐾</h1>
+
+            <hr>
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <h5>Pet Information</h5>
+
+                    <p>
+                        <strong>Species:</strong>
+                        {{ pet.species }}
+                    </p>
+
+                    <p>
+                        <strong>Breed:</strong>
+                        {{ pet.breed or "Not specified" }}
+                    </p>
+
+                    <p>
+                        <strong>Age:</strong>
+                        {{ pet.age }} years
+                    </p>
+
+                    <p>
+                        <strong>Gender:</strong>
+                        {{ pet.gender }}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+
+                        <span class="badge bg-success">
+                            {{ pet.status }}
+                        </span>
+                    </p>
+
+                </div>
+
+                {% if session.get("user_id") == pet.owner_id %}
+
+                <div class="mt-4">
+
+                    <a
+                        href="{{ url_for('pets.edit_pet', pet_id=pet.id) }}"
+                        class="btn btn-warning">
+                        Edit Pet
+                    </a>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('pets.delete_pet', pet_id=pet.id) }}"
+                        style="display: inline;">
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to delete this pet?');">
+
+                            Delete Pet
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {% endif %}
+
+                
+                <div class="col-md-6">
+
+                    <h5>About {{ pet.name }}</h5>
+
+                    <p>
+                        {{ pet.description }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
