@@ -8,7 +8,23 @@
 
     <h2 class="mb-4">Add a Pet 🐾</h2>
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
+        
+        <div class="mb-3">
+
+            <label class="form-label">Pet Photo</label>
+
+            <input
+                type="file"
+                name="image"
+                class="form-control"
+                accept=".jpg,.jpeg,.png,.webp">
+
+            <div class="form-text">
+                JPG, JPEG, PNG or WEBP. Maximum 5 MB.
+            </div>
+
+        </div>
 
         <div class="mb-3">
             <label class="form-label">Pet Name</label>

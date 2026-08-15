@@ -1,10 +1,20 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
+
+import os
+import uuid
+from werkzeug.utils import secure_filename
 
 from extensions import db
 from models.pet import Pet
 
-pets = Blueprint("pets", __name__)
 
+pets = Blueprint("pets", __name__)
+def allowed_file(filename):
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower()
+        in current_app.config["ALLOWED_EXTENSIONS"]
+    )
 
 @pets.route("/pets")
 def pet_list():
@@ -100,6 +110,31 @@ def add_pet():
         gender = request.form["gender"]
         description = request.form["description"]
 
+        # Get uploaded image
+        image = request.files.get("image")
+
+        image_filename = None
+
+        if image and image.filename:
+
+            if not allowed_file(image.filename):
+                flash(
+                    "Invalid image type. Please upload JPG, JPEG, PNG, or WEBP.",
+                    "danger"
+                )
+                return redirect(url_for("pets.add_pet"))
+
+            extension = image.filename.rsplit(".", 1)[1].lower()
+
+            image_filename = f"{uuid.uuid4().hex}.{extension}"
+
+            image_path = os.path.join(
+                current_app.config["UPLOAD_FOLDER"],
+                image_filename
+            )
+
+            image.save(image_path)
+
         new_pet = Pet(
             name=name,
             species=species,
@@ -107,6 +142,7 @@ def add_pet():
             age=age,
             gender=gender,
             description=description,
+            image=image_filename,
             owner_id=session["user_id"]
         )
 

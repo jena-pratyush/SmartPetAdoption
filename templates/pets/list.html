@@ -37,6 +37,15 @@
 
                 <div class="card-body">
 
+                    {% if pet.image %}
+
+                    <img
+                        src="{{ url_for('uploaded_file', filename=pet.image) }}"
+                        class="card-img-top"
+                        alt="{{ pet.name }}"
+                        style="height: 250px; object-fit: cover;">
+
+                    {% endif %}
                     <h4 class="card-title">
                         {{ pet.name }}
                     </h4>
