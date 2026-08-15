@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 
 from extensions import db
 from models.pet import Pet
+from models.adoption_request import AdoptionRequest
 
 
 pets = Blueprint("pets", __name__)
@@ -34,6 +35,80 @@ def pet_details(pet_id):
     return render_template(
         "pets/details.html",
         pet=pet
+    )
+
+@pets.route("/pets/<int:pet_id>/apply", methods=["GET", "POST"])
+def apply_for_adoption(pet_id):
+
+    if "user_id" not in session:
+        flash("Please login to apply for adoption.", "warning")
+        return redirect(url_for("auth.login"))
+
+    pet = Pet.query.get_or_404(pet_id)
+
+    # Owner cannot apply for their own pet
+    if pet.owner_id == session["user_id"]:
+        flash("You cannot apply to adopt your own pet.", "danger")
+        return redirect(url_for("pets.pet_details", pet_id=pet.id))
+
+    if pet.status != "available":
+        flash("This pet is no longer available for adoption.", "warning")
+        return redirect(url_for("pets.pet_details", pet_id=pet.id))
+
+    if request.method == "POST":
+
+        reason = request.form["reason"]
+        experience = request.form.get("experience")
+        home_type = request.form.get("home_type")
+        family_members = request.form.get("family_members")
+        other_pets = request.form.get("other_pets")
+        working_hours = request.form.get("working_hours")
+        phone = request.form["phone"]
+
+        new_request = AdoptionRequest(
+            pet_id=pet.id,
+            adopter_id=session["user_id"],
+            reason=reason,
+            experience=experience,
+            home_type=home_type,
+            family_members=family_members,
+            other_pets=other_pets,
+            working_hours=working_hours,
+            phone=phone
+        )
+
+        db.session.add(new_request)
+        db.session.commit()
+
+        flash("Adoption request submitted successfully!", "success")
+
+        return redirect(
+            url_for("pets.pet_details", pet_id=pet.id)
+        )
+
+    return render_template(
+        "pets/apply.html",
+        pet=pet
+    )
+
+@pets.route("/applications")
+def applications():
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    requests = (
+        AdoptionRequest.query
+        .join(Pet)
+        .filter(Pet.owner_id == session["user_id"])
+        .order_by(AdoptionRequest.created_at.desc())
+        .all()
+    )
+
+    return render_template(
+        "pets/applications.html",
+        requests=requests
     )
 
 @pets.route("/pets/<int:pet_id>/edit", methods=["GET", "POST"])

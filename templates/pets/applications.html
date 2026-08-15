@@ -1,0 +1,110 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Adoption Applications{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <h2 class="mb-4">Adoption Applications 🐾</h2>
+
+    {% if requests %}
+
+        {% for request in requests %}
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <h4>{{ request.pet.name }}</h4>
+
+                        <p class="text-muted mb-0">
+                            Application from
+                            <strong>{{ request.adopter.full_name }}</strong>
+                        </p>
+                    </div>
+
+                    <span class="badge bg-warning">
+                        {{ request.status }}
+                    </span>
+
+                </div>
+
+                <hr>
+
+                <h5>Why do they want this pet?</h5>
+
+                <p>
+                    {{ request.reason }}
+                </p>
+
+                <h5>Previous Pet Experience</h5>
+
+                <p>
+                    {{ request.experience or "Not provided" }}
+                </p>
+
+                <div class="row">
+
+                    <div class="col-md-6">
+
+                        <p>
+                            <strong>Home Type:</strong>
+                            {{ request.home_type or "Not provided" }}
+                        </p>
+
+                        <p>
+                            <strong>Family Members:</strong>
+                            {{ request.family_members or "Not provided" }}
+                        </p>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <p>
+                            <strong>Other Pets:</strong>
+                            {{ request.other_pets or "None" }}
+                        </p>
+
+                        <p>
+                            <strong>Working Hours:</strong>
+                            {{ request.working_hours or "Not provided" }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    <strong>Phone:</strong>
+                    {{ request.phone }}
+                </p>
+
+                <p class="text-muted">
+                    Applied on:
+                    {{ request.created_at.strftime("%d %B %Y") }}
+                </p>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="alert alert-info">
+
+            You don't have any adoption applications yet.
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

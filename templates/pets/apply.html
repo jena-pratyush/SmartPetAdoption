@@ -1,0 +1,114 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Apply for {{ pet.name }}{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5" style="max-width: 700px;">
+
+    <h2 class="mb-2">Adopt {{ pet.name }} 🐾</h2>
+
+    <p class="text-muted mb-4">
+        Tell the pet owner why you would be a good home for {{ pet.name }}.
+    </p>
+
+    <form method="POST">
+
+        <div class="mb-3">
+            <label class="form-label">
+                Why do you want this pet?
+            </label>
+
+            <textarea
+                name="reason"
+                class="form-control"
+                rows="4"
+                required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+                Previous pet experience
+            </label>
+
+            <textarea
+                name="experience"
+                class="form-control"
+                rows="3"
+                placeholder="Tell us about any pets you have cared for before."></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Home Type</label>
+
+            <select name="home_type" class="form-select">
+
+                <option value="">Select</option>
+                <option value="Apartment">Apartment</option>
+                <option value="House">House</option>
+                <option value="Other">Other</option>
+
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+                Family Members
+            </label>
+
+            <input
+                type="text"
+                name="family_members"
+                class="form-control"
+                placeholder="Example: 4 members">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+                Do you have other pets?
+            </label>
+
+            <input
+                type="text"
+                name="other_pets"
+                class="form-control"
+                placeholder="Example: 1 cat / None">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+                Working Hours
+            </label>
+
+            <input
+                type="text"
+                name="working_hours"
+                class="form-control"
+                placeholder="Example: 9 AM - 5 PM">
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">
+                Phone Number
+            </label>
+
+            <input
+                type="tel"
+                name="phone"
+                class="form-control"
+                required>
+        </div>
+
+        <button
+            type="submit"
+            class="btn btn-success w-100">
+
+            Submit Adoption Request
+
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

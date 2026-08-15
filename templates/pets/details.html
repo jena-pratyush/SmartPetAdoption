@@ -16,6 +16,19 @@
         <div class="card-body">
 
             <h1>{{ pet.name }} 🐾</h1>
+            {% if pet.image %}
+
+            <div class="mb-4">
+
+                <img
+                    src="{{ url_for('uploaded_file', filename=pet.image) }}"
+                    alt="{{ pet.name }}"
+                    class="img-fluid rounded"
+                    style="max-height: 450px; width: 100%; object-fit: cover;">
+
+            </div>
+
+{% endif %}
 
             <hr>
 
@@ -80,6 +93,22 @@
                         </button>
 
                     </form>
+
+                </div>
+
+                {% endif %}
+
+                {% if session.get("user_id")
+                    and session.get("user_id") != pet.owner_id
+                    and pet.status == "available" %}
+
+                <div class="mt-4">
+
+                    <a
+                        href="{{ url_for('pets.apply_for_adoption', pet_id=pet.id) }}"
+                        class="btn btn-success">
+                        Apply for Adoption
+                    </a>
 
                 </div>
 
