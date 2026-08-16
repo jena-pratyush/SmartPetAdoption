@@ -111,6 +111,77 @@ def applications():
         requests=requests
     )
 
+@pets.route("/applications/<int:request_id>/<action>", methods=["POST"])
+def update_application(request_id, action):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    adoption_request = AdoptionRequest.query.get_or_404(request_id)
+
+    pet = Pet.query.get_or_404(adoption_request.pet_id)
+
+    # Only the pet owner can approve/reject
+    if pet.owner_id != session["user_id"]:
+        flash("You are not allowed to manage this application.", "danger")
+        return redirect(url_for("pets.applications"))
+
+    # Application must still be pending
+    if adoption_request.status != "Pending":
+        flash("This application has already been processed.", "warning")
+        return redirect(url_for("pets.applications"))
+
+    if action == "approve":
+
+        adoption_request.status = "Approved"
+
+        # Pet is no longer available
+        pet.status = "adopted"
+
+        db.session.commit()
+
+        flash(
+            f"Adoption request for {pet.name} approved!",
+            "success"
+        )
+
+    elif action == "reject":
+
+        adoption_request.status = "Rejected"
+
+        db.session.commit()
+
+        flash(
+            "Adoption request rejected.",
+            "info"
+        )
+
+    else:
+
+        flash("Invalid action.", "danger")
+
+    return redirect(url_for("pets.applications"))
+
+@pets.route("/my-applications")
+def my_applications():
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    requests = (
+        AdoptionRequest.query
+        .filter_by(adopter_id=session["user_id"])
+        .order_by(AdoptionRequest.created_at.desc())
+        .all()
+    )
+
+    return render_template(
+        "pets/my_applications.html",
+        requests=requests
+    )
+
 @pets.route("/pets/<int:pet_id>/edit", methods=["GET", "POST"])
 def edit_pet(pet_id):
 

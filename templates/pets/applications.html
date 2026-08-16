@@ -27,7 +27,15 @@
                         </p>
                     </div>
 
-                    <span class="badge bg-warning">
+                    <span class="badge
+                        {% if request.status == 'Approved' %}
+                            bg-success
+                        {% elif request.status == 'Rejected' %}
+                            bg-danger
+                        {% else %}
+                            bg-warning
+                        {% endif %}
+                    ">
                         {{ request.status }}
                     </span>
 
@@ -88,6 +96,50 @@
                     Applied on:
                     {{ request.created_at.strftime("%d %B %Y") }}
                 </p>
+
+
+                <!-- Approve / Reject buttons -->
+
+                {% if request.status == "Pending" %}
+
+                <div class="mt-3">
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('pets.update_application', request_id=request.id, action='approve') }}"
+                        style="display: inline;">
+
+                        <button
+                            type="submit"
+                            class="btn btn-success"
+                            onclick="return confirm('Approve this adoption request?');">
+
+                            ✓ Approve
+
+                        </button>
+
+                    </form>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('pets.update_application', request_id=request.id, action='reject') }}"
+                        style="display: inline;">
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger"
+                            onclick="return confirm('Reject this adoption request?');">
+
+                            ✕ Reject
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {% endif %}
 
             </div>
 
