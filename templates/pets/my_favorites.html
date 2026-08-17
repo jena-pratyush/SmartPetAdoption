@@ -1,0 +1,103 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}My Favorites{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <h2 class="mb-4">My Favorite Pets ❤️</h2>
+
+    {% if favorites %}
+
+    <div class="row">
+
+        {% for favorite in favorites %}
+
+        <div class="col-md-4 mb-4">
+
+            <div class="card h-100 shadow-sm">
+
+                {% if favorite.pet.image %}
+
+                <img
+                    src="{{ url_for('uploaded_file', filename=favorite.pet.image) }}"
+                    class="card-img-top"
+                    alt="{{ favorite.pet.name }}"
+                    style="height: 250px; object-fit: cover;">
+
+                {% endif %}
+
+                <div class="card-body">
+
+                    <h4 class="card-title">
+                        {{ favorite.pet.name }}
+                    </h4>
+
+                    <p class="card-text">
+
+                        <strong>Species:</strong>
+                        {{ favorite.pet.species }}
+
+                        <br>
+
+                        <strong>Breed:</strong>
+                        {{ favorite.pet.breed or "Not specified" }}
+
+                        <br>
+
+                        <strong>Age:</strong>
+                        {{ favorite.pet.age }} years
+
+                        <br>
+
+                        <strong>Gender:</strong>
+                        {{ favorite.pet.gender }}
+
+                    </p>
+
+                    <span class="badge
+                        {% if favorite.pet.status == 'available' %}
+                            bg-success
+                        {% else %}
+                            bg-secondary
+                        {% endif %}
+                    ">
+                        {{ favorite.pet.status }}
+                    </span>
+
+                    <div class="mt-3">
+
+                        <a
+                            href="{{ url_for('pets.pet_details', pet_id=favorite.pet.id) }}"
+                            class="btn btn-primary">
+
+                            View Details
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="alert alert-info">
+
+        You haven't added any pets to your favorites yet. ❤️
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

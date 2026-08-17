@@ -1,21 +1,37 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash,
+    session,
+    current_app
+)
 
 import os
 import uuid
-from werkzeug.utils import secure_filename
 
 from extensions import db
 from models.pet import Pet
 from models.adoption_request import AdoptionRequest
+from models.favorite import Favorite
 
 
 pets = Blueprint("pets", __name__)
+
+
 def allowed_file(filename):
     return (
         "." in filename
         and filename.rsplit(".", 1)[1].lower()
         in current_app.config["ALLOWED_EXTENSIONS"]
     )
+
+
+# =========================================================
+# BROWSE PETS
+# =========================================================
 
 @pets.route("/pets")
 def pet_list():
@@ -27,6 +43,11 @@ def pet_list():
         pets=all_pets
     )
 
+
+# =========================================================
+# PET DETAILS
+# =========================================================
+
 @pets.route("/pets/<int:pet_id>")
 def pet_details(pet_id):
 
@@ -37,23 +58,151 @@ def pet_details(pet_id):
         pet=pet
     )
 
-@pets.route("/pets/<int:pet_id>/apply", methods=["GET", "POST"])
-def apply_for_adoption(pet_id):
+
+# =========================================================
+# FAVORITE / UNFAVORITE PET
+# =========================================================
+
+@pets.route("/pets/<int:pet_id>/favorite", methods=["POST"])
+def toggle_favorite(pet_id):
 
     if "user_id" not in session:
-        flash("Please login to apply for adoption.", "warning")
+        flash("Please login to favorite a pet.", "warning")
         return redirect(url_for("auth.login"))
 
     pet = Pet.query.get_or_404(pet_id)
 
-    # Owner cannot apply for their own pet
+    # User cannot favorite their own pet
     if pet.owner_id == session["user_id"]:
-        flash("You cannot apply to adopt your own pet.", "danger")
-        return redirect(url_for("pets.pet_details", pet_id=pet.id))
+        flash("You cannot favorite your own pet.", "warning")
+        return redirect(
+            url_for("pets.pet_details", pet_id=pet.id)
+        )
 
+    existing_favorite = Favorite.query.filter_by(
+        user_id=session["user_id"],
+        pet_id=pet.id
+    ).first()
+
+    if existing_favorite:
+
+        db.session.delete(existing_favorite)
+        db.session.commit()
+
+        flash(
+            f"{pet.name} removed from your favorites.",
+            "info"
+        )
+
+    else:
+
+        new_favorite = Favorite(
+            user_id=session["user_id"],
+            pet_id=pet.id
+        )
+
+        db.session.add(new_favorite)
+        db.session.commit()
+
+        flash(
+            f"{pet.name} added to your favorites! ❤️",
+            "success"
+        )
+
+    return redirect(
+        url_for("pets.pet_details", pet_id=pet.id)
+    )
+
+
+# =========================================================
+# MY FAVORITES
+# =========================================================
+
+@pets.route("/my-favorites")
+def my_favorites():
+
+    if "user_id" not in session:
+        flash(
+            "Please login to view your favorites.",
+            "warning"
+        )
+        return redirect(url_for("auth.login"))
+
+    favorites = (
+        Favorite.query
+        .filter_by(user_id=session["user_id"])
+        .order_by(Favorite.created_at.desc())
+        .all()
+    )
+
+    return render_template(
+        "pets/my_favorites.html",
+        favorites=favorites
+    )
+
+
+# =========================================================
+# MY PETS
+# =========================================================
+
+@pets.route("/my-pets")
+def my_pets():
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    pets_owned = (
+        Pet.query
+        .filter_by(owner_id=session["user_id"])
+        .order_by(Pet.created_at.desc())
+        .all()
+    )
+
+    return render_template(
+        "pets/my_pets.html",
+        pets=pets_owned
+    )
+
+
+# =========================================================
+# APPLY FOR ADOPTION
+# =========================================================
+
+@pets.route(
+    "/pets/<int:pet_id>/apply",
+    methods=["GET", "POST"]
+)
+def apply_for_adoption(pet_id):
+
+    if "user_id" not in session:
+        flash(
+            "Please login to apply for adoption.",
+            "warning"
+        )
+        return redirect(url_for("auth.login"))
+
+    pet = Pet.query.get_or_404(pet_id)
+
+    # User cannot apply for their own pet
+    if pet.owner_id == session["user_id"]:
+        flash(
+            "You cannot apply to adopt your own pet.",
+            "danger"
+        )
+        return redirect(
+            url_for("pets.pet_details", pet_id=pet.id)
+        )
+
+    # Pet must still be available
     if pet.status != "available":
-        flash("This pet is no longer available for adoption.", "warning")
-        return redirect(url_for("pets.pet_details", pet_id=pet.id))
+        flash(
+            "This pet is no longer available for adoption.",
+            "warning"
+        )
+        return redirect(
+            url_for("pets.pet_details", pet_id=pet.id)
+        )
 
     if request.method == "POST":
 
@@ -80,7 +229,10 @@ def apply_for_adoption(pet_id):
         db.session.add(new_request)
         db.session.commit()
 
-        flash("Adoption request submitted successfully!", "success")
+        flash(
+            "Adoption request submitted successfully!",
+            "success"
+        )
 
         return redirect(
             url_for("pets.pet_details", pet_id=pet.id)
@@ -90,6 +242,11 @@ def apply_for_adoption(pet_id):
         "pets/apply.html",
         pet=pet
     )
+
+
+# =========================================================
+# ADOPTION APPLICATIONS FOR MY PETS
+# =========================================================
 
 @pets.route("/applications")
 def applications():
@@ -101,8 +258,12 @@ def applications():
     requests = (
         AdoptionRequest.query
         .join(Pet)
-        .filter(Pet.owner_id == session["user_id"])
-        .order_by(AdoptionRequest.created_at.desc())
+        .filter(
+            Pet.owner_id == session["user_id"]
+        )
+        .order_by(
+            AdoptionRequest.created_at.desc()
+        )
         .all()
     )
 
@@ -111,26 +272,53 @@ def applications():
         requests=requests
     )
 
-@pets.route("/applications/<int:request_id>/<action>", methods=["POST"])
+
+# =========================================================
+# APPROVE / REJECT APPLICATION
+# =========================================================
+
+@pets.route(
+    "/applications/<int:request_id>/<action>",
+    methods=["POST"]
+)
 def update_application(request_id, action):
 
     if "user_id" not in session:
         flash("Please login first.", "warning")
         return redirect(url_for("auth.login"))
 
-    adoption_request = AdoptionRequest.query.get_or_404(request_id)
+    adoption_request = (
+        AdoptionRequest.query.get_or_404(request_id)
+    )
 
-    pet = Pet.query.get_or_404(adoption_request.pet_id)
+    pet = Pet.query.get_or_404(
+        adoption_request.pet_id
+    )
 
-    # Only the pet owner can approve/reject
+    # Only the person who owns the pet
+    # can approve or reject the application
     if pet.owner_id != session["user_id"]:
-        flash("You are not allowed to manage this application.", "danger")
-        return redirect(url_for("pets.applications"))
+
+        flash(
+            "You are not allowed to manage this application.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("pets.applications")
+        )
 
     # Application must still be pending
     if adoption_request.status != "Pending":
-        flash("This application has already been processed.", "warning")
-        return redirect(url_for("pets.applications"))
+
+        flash(
+            "This application has already been processed.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("pets.applications")
+        )
 
     if action == "approve":
 
@@ -159,9 +347,19 @@ def update_application(request_id, action):
 
     else:
 
-        flash("Invalid action.", "danger")
+        flash(
+            "Invalid action.",
+            "danger"
+        )
 
-    return redirect(url_for("pets.applications"))
+    return redirect(
+        url_for("pets.applications")
+    )
+
+
+# =========================================================
+# MY APPLICATIONS
+# =========================================================
 
 @pets.route("/my-applications")
 def my_applications():
@@ -172,8 +370,12 @@ def my_applications():
 
     requests = (
         AdoptionRequest.query
-        .filter_by(adopter_id=session["user_id"])
-        .order_by(AdoptionRequest.created_at.desc())
+        .filter_by(
+            adopter_id=session["user_id"]
+        )
+        .order_by(
+            AdoptionRequest.created_at.desc()
+        )
         .all()
     )
 
@@ -182,7 +384,15 @@ def my_applications():
         requests=requests
     )
 
-@pets.route("/pets/<int:pet_id>/edit", methods=["GET", "POST"])
+
+# =========================================================
+# EDIT PET
+# =========================================================
+
+@pets.route(
+    "/pets/<int:pet_id>/edit",
+    methods=["GET", "POST"]
+)
 def edit_pet(pet_id):
 
     if "user_id" not in session:
@@ -191,10 +401,20 @@ def edit_pet(pet_id):
 
     pet = Pet.query.get_or_404(pet_id)
 
-    # Only the owner who created the pet can edit it
+    # Only the user who created the pet can edit it
     if pet.owner_id != session["user_id"]:
-        flash("You are not allowed to edit this pet.", "danger")
-        return redirect(url_for("pets.pet_details", pet_id=pet.id))
+
+        flash(
+            "You are not allowed to edit this pet.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "pets.pet_details",
+                pet_id=pet.id
+            )
+        )
 
     if request.method == "POST":
 
@@ -207,10 +427,16 @@ def edit_pet(pet_id):
 
         db.session.commit()
 
-        flash("Pet updated successfully!", "success")
+        flash(
+            "Pet updated successfully!",
+            "success"
+        )
 
         return redirect(
-            url_for("pets.pet_details", pet_id=pet.id)
+            url_for(
+                "pets.pet_details",
+                pet_id=pet.id
+            )
         )
 
     return render_template(
@@ -218,7 +444,15 @@ def edit_pet(pet_id):
         pet=pet
     )
 
-@pets.route("/pets/<int:pet_id>/delete", methods=["POST"])
+
+# =========================================================
+# DELETE PET
+# =========================================================
+
+@pets.route(
+    "/pets/<int:pet_id>/delete",
+    methods=["POST"]
+)
 def delete_pet(pet_id):
 
     if "user_id" not in session:
@@ -227,24 +461,49 @@ def delete_pet(pet_id):
 
     pet = Pet.query.get_or_404(pet_id)
 
-    # Only the owner can delete the pet
+    # Only the user who created the pet can delete it
     if pet.owner_id != session["user_id"]:
-        flash("You are not allowed to delete this pet.", "danger")
-        return redirect(url_for("pets.pet_details", pet_id=pet.id))
+
+        flash(
+            "You are not allowed to delete this pet.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "pets.pet_details",
+                pet_id=pet.id
+            )
+        )
 
     db.session.delete(pet)
     db.session.commit()
 
-    flash("Pet deleted successfully.", "success")
+    flash(
+        "Pet deleted successfully.",
+        "success"
+    )
 
-    return redirect(url_for("pets.pet_list"))
+    return redirect(
+        url_for("pets.pet_list")
+    )
 
-@pets.route("/pets/add", methods=["GET", "POST"])
+
+# =========================================================
+# ADD PET
+# =========================================================
+
+@pets.route(
+    "/pets/add",
+    methods=["GET", "POST"]
+)
 def add_pet():
 
-    # User must be logged in
     if "user_id" not in session:
-        flash("Please login to add a pet.", "warning")
+        flash(
+            "Please login to add a pet.",
+            "warning"
+        )
         return redirect(url_for("auth.login"))
 
     if request.method == "POST":
@@ -264,15 +523,25 @@ def add_pet():
         if image and image.filename:
 
             if not allowed_file(image.filename):
+
                 flash(
                     "Invalid image type. Please upload JPG, JPEG, PNG, or WEBP.",
                     "danger"
                 )
-                return redirect(url_for("pets.add_pet"))
 
-            extension = image.filename.rsplit(".", 1)[1].lower()
+                return redirect(
+                    url_for("pets.add_pet")
+                )
 
-            image_filename = f"{uuid.uuid4().hex}.{extension}"
+            extension = (
+                image.filename
+                .rsplit(".", 1)[1]
+                .lower()
+            )
+
+            image_filename = (
+                f"{uuid.uuid4().hex}.{extension}"
+            )
 
             image_path = os.path.join(
                 current_app.config["UPLOAD_FOLDER"],
@@ -295,8 +564,15 @@ def add_pet():
         db.session.add(new_pet)
         db.session.commit()
 
-        flash("Pet added successfully!", "success")
+        flash(
+            "Pet added successfully!",
+            "success"
+        )
 
-        return redirect(url_for("pets.pet_list"))
+        return redirect(
+            url_for("pets.pet_list")
+        )
 
-    return render_template("pets/add.html")
+    return render_template(
+        "pets/add.html"
+    )

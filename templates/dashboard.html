@@ -6,45 +6,91 @@
 
 <div class="container mt-5">
 
-<h2>Welcome {{ session.user_name }} 👋</h2>
+    <h2>Welcome {{ session.user_name }} 👋</h2>
 
-<p>You are logged in.</p>
+    <p class="text-muted">
+        Manage your pets, adoption applications, and favorites.
+    </p>
 
-<div class="list-group mt-4">
+    <div class="list-group mt-4">
 
-<a href="{{ url_for('pets.pet_list') }}" class="list-group-item">
-    🐶 Browse Pets
-</a>
+        <!-- Browse Pets -->
 
-<a href="{{ url_for('pets.add_pet') }}" class="list-group-item">
-    ➕ Add a Pet
-</a>
+        <a
+            href="{{ url_for('pets.pet_list') }}"
+            class="list-group-item list-group-item-action">
 
-<a href="#" class="list-group-item">
-❤️ Favourite Pets
-</a>
+            🐶 Browse Pets
 
-<a href="#" class="list-group-item">
-📋 My Applications
-</a>
+        </a>
 
-<a
-    href="{{ url_for('pets.applications') }}"
-    class="btn btn-primary">
-    Adoption Applications
-</a>
 
-<a
-    href="{{ url_for('pets.my_applications') }}"
-    class="btn btn-primary">
-    My Applications
-</a>
+        <!-- Add Pet -->
 
-<a href="/logout" class="list-group-item text-danger">
-Logout
-</a>
+        <a
+            href="{{ url_for('pets.add_pet') }}"
+            class="list-group-item list-group-item-action">
 
-</div>
+            ➕ Add a Pet
+
+        </a>
+
+
+        <!-- My Pets -->
+
+        <a
+            href="{{ url_for('pets.my_pets') }}"
+            class="list-group-item list-group-item-action">
+
+            🐾 My Pets
+
+        </a>
+
+
+        <!-- Applications for my pets -->
+
+        <a
+            href="{{ url_for('pets.applications') }}"
+            class="list-group-item list-group-item-action">
+
+            📋 Adoption Applications
+
+        </a>
+
+
+        <!-- My Favorites -->
+
+        <a
+            href="{{ url_for('pets.my_favorites') }}"
+            class="list-group-item list-group-item-action">
+
+            ❤️ My Favorites
+
+        </a>
+
+
+        <!-- Applications I submitted -->
+
+        <a
+            href="{{ url_for('pets.my_applications') }}"
+            class="list-group-item list-group-item-action">
+
+            📋 My Applications
+
+        </a>
+
+
+        <!-- Logout -->
+
+        <a
+            href="{{ url_for('auth.logout') }}"
+            class="list-group-item list-group-item-action text-danger">
+
+            🚪 Logout
+
+        </a>
+
+    </div>
 
 </div>
 

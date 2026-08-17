@@ -114,6 +114,48 @@
 
                 {% endif %}
 
+                {% if session.get("user_id")
+                    and session.get("user_id") != pet.owner_id %}
+
+                <div class="mt-3">
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('pets.toggle_favorite', pet_id=pet.id) }}">
+
+                        {% set is_favorite = pet.favorited_by
+                            |selectattr("user_id", "equalto", session.get("user_id"))
+                            |list
+                            |length > 0 %}
+
+                        {% if is_favorite %}
+
+                            <button
+                                type="submit"
+                                class="btn btn-danger">
+
+                                ❤️ Remove from Favorites
+
+                            </button>
+
+                        {% else %}
+
+                            <button
+                                type="submit"
+                                class="btn btn-outline-danger">
+
+                                ♡ Add to Favorites
+
+                            </button>
+
+                        {% endif %}
+
+                    </form>
+
+                </div>
+
+                {% endif %}
+
                 
                 <div class="col-md-6">
 

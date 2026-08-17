@@ -16,7 +16,6 @@ def register():
         phone = request.form["phone"]
         password = request.form["password"]
         confirm_password = request.form["confirm_password"]
-        role = request.form["role"]
 
         # Check passwords
         if password != confirm_password:
@@ -38,7 +37,7 @@ def register():
             email=email,
             phone=phone,
             password=hashed_password,
-            role=role
+            role="user"
         )
 
         db.session.add(new_user)
