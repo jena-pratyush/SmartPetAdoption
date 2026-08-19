@@ -1,0 +1,170 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Manage Pets{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2>Manage Pets 🐾</h2>
+
+            <p class="text-muted mb-0">
+                View and manage all pets on the platform.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('admin.admin_dashboard') }}"
+            class="btn btn-secondary">
+
+            ← Admin Dashboard
+
+        </a>
+
+    </div>
+
+
+    {% if pets %}
+
+    <div class="table-responsive">
+
+        <table class="table table-bordered table-hover align-middle">
+
+            <thead class="table-dark">
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Pet</th>
+                    <th>Species</th>
+                    <th>Breed</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Status</th>
+                    <th>Owner</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for pet in pets %}
+
+                <tr>
+
+                    <td>
+                        {{ pet.id }}
+                    </td>
+
+                    <td>
+                        <strong>{{ pet.name }}</strong>
+                    </td>
+
+                    <td>
+                        {{ pet.species }}
+                    </td>
+
+                    <td>
+                        {{ pet.breed or "Not specified" }}
+                    </td>
+
+                    <td>
+                        {{ pet.age }} years
+                    </td>
+
+                    <td>
+                        {{ pet.gender }}
+                    </td>
+
+                    <td>
+
+                        {% if pet.status == "available" %}
+
+                            <span class="badge bg-success">
+                                Available
+                            </span>
+
+                        {% elif pet.status == "adopted" %}
+
+                            <span class="badge bg-secondary">
+                                Adopted
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-warning">
+                                {{ pet.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if pet.owner %}
+
+                            {{ pet.owner.full_name }}
+
+                        {% else %}
+
+                            Unknown
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <a
+                            href="{{ url_for('pets.pet_details', pet_id=pet.id) }}"
+                            class="btn btn-sm btn-primary">
+
+                            View
+
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('admin.delete_pet', pet_id=pet.id) }}"
+                            style="display: inline;">
+
+                            <button
+                                type="submit"
+                                class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are you sure you want to delete this pet? This cannot be undone.');">
+
+                                Delete
+
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <div class="alert alert-info">
+        No pets found.
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

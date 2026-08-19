@@ -1,0 +1,182 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Manage Applications{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2>Manage Adoption Applications 📋</h2>
+
+            <p class="text-muted mb-0">
+                View all adoption applications submitted on the platform.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('admin.admin_dashboard') }}"
+            class="btn btn-secondary">
+
+            ← Admin Dashboard
+
+        </a>
+
+    </div>
+
+
+    {% if requests %}
+
+    {% for request in requests %}
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <h4>
+                        {{ request.pet.name }}
+                    </h4>
+
+                    <p class="text-muted mb-0">
+
+                        Applicant:
+                        <strong>
+                            {{ request.adopter.full_name }}
+                        </strong>
+
+                    </p>
+
+                </div>
+
+
+                {% if request.status == "Pending" %}
+
+                    <span class="badge bg-warning">
+                        Pending
+                    </span>
+
+                {% elif request.status == "Approved" %}
+
+                    <span class="badge bg-success">
+                        Approved
+                    </span>
+
+                {% elif request.status == "Rejected" %}
+
+                    <span class="badge bg-danger">
+                        Rejected
+                    </span>
+
+                {% else %}
+
+                    <span class="badge bg-secondary">
+                        {{ request.status }}
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+            <hr>
+
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <p>
+                        <strong>Pet:</strong>
+                        {{ request.pet.name }}
+                    </p>
+
+                    <p>
+                        <strong>Species:</strong>
+                        {{ request.pet.species }}
+                    </p>
+
+                    <p>
+                        <strong>Pet Owner:</strong>
+
+                        {% if request.pet.owner %}
+
+                            {{ request.pet.owner.full_name }}
+
+                        {% else %}
+
+                            Unknown
+
+                        {% endif %}
+
+                    </p>
+
+                    <p>
+                        <strong>Applicant:</strong>
+                        {{ request.adopter.full_name }}
+                    </p>
+
+                    <p>
+                        <strong>Phone:</strong>
+                        {{ request.phone }}
+                    </p>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <p>
+                        <strong>Reason:</strong>
+                    </p>
+
+                    <p>
+                        {{ request.reason }}
+                    </p>
+
+                    <p>
+                        <strong>Experience:</strong>
+                    </p>
+
+                    <p>
+                        {{ request.experience or "Not provided" }}
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <hr>
+
+            <p class="text-muted mb-0">
+
+                Applied on:
+                {{ request.created_at.strftime("%d %B %Y") }}
+
+            </p>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+
+    {% else %}
+
+    <div class="alert alert-info">
+
+        No adoption applications found.
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
