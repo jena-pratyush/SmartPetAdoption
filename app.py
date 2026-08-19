@@ -6,7 +6,7 @@ from models.pet import Pet
 
 from routes.auth import auth
 from routes.pet import pets
-
+from routes.admin import admin
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -17,6 +17,7 @@ db.init_app(app)
 # Register Blueprints
 app.register_blueprint(auth)
 app.register_blueprint(pets)
+app.register_blueprint(admin)
 
 # Home Page
 @app.route("/")

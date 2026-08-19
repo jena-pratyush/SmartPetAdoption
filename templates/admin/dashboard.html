@@ -1,0 +1,80 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <h2>Admin Dashboard ⚙️</h2>
+
+    <p class="text-muted">
+        Manage and monitor the Smart Pet Adoption platform.
+    </p>
+
+    <div class="row mt-4">
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5>👥 Users</h5>
+                    <h2>{{ user_count }}</h2>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5>🐾 Total Pets</h5>
+                    <h2>{{ pet_count }}</h2>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5>📋 Applications</h5>
+                    <h2>{{ application_count }}</h2>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5>🟢 Available Pets</h5>
+                    <h2>{{ available_pets }}</h2>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5>🏠 Adopted Pets</h5>
+                    <h2>{{ adopted_pets }}</h2>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5>⏳ Pending Applications</h5>
+                    <h2>{{ pending_applications }}</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
