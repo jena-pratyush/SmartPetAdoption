@@ -16,6 +16,7 @@ from extensions import db
 from models.pet import Pet
 from models.adoption_request import AdoptionRequest
 from models.favorite import Favorite
+from models.message import Message
 
 # Blueprint for handling all pet-related interactions
 pets = Blueprint("pets", __name__)
@@ -552,4 +553,165 @@ def add_pet():
 
     return render_template(
         "pets/add.html"
+    )
+
+# =========================================================
+# CHAT
+# =========================================================
+
+@pets.route("/chat/<int:request_id>")
+def chat(request_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    adoption_request = AdoptionRequest.query.get_or_404(request_id)
+
+    pet = Pet.query.get_or_404(
+        adoption_request.pet_id
+    )
+
+    current_user_id = session["user_id"]
+
+    # Chat is only available after approval
+    if adoption_request.status != "Approved":
+        flash(
+            "Chat is available only after the adoption is approved.",
+            "warning"
+        )
+        return redirect(
+            url_for("pets.my_applications")
+        )
+
+    # Only the pet owner or approved adopter can access chat
+    if (
+        current_user_id != adoption_request.adopter_id
+        and current_user_id != pet.owner_id
+    ):
+        flash(
+            "You are not allowed to access this chat.",
+            "danger"
+        )
+        return redirect(
+            url_for("pets.pet_list")
+        )
+
+    messages = (
+        Message.query
+        .filter_by(
+            adoption_request_id=adoption_request.id
+        )
+        .order_by(Message.created_at.asc())
+        .all()
+    )
+
+    # Mark received messages as read
+    for message in messages:
+
+        if (
+            message.receiver_id == current_user_id
+            and not message.is_read
+        ):
+            message.is_read = True
+
+    db.session.commit()
+
+    return render_template(
+        "pets/chat.html",
+        adoption_request=adoption_request,
+        pet=pet,
+        messages=messages
+    )
+
+
+@pets.route(
+    "/chat/<int:request_id>/send",
+    methods=["POST"]
+)
+def send_message(request_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    adoption_request = AdoptionRequest.query.get_or_404(
+        request_id
+    )
+
+    pet = Pet.query.get_or_404(
+        adoption_request.pet_id
+    )
+
+    current_user_id = session["user_id"]
+
+    # Chat only after approval
+    if adoption_request.status != "Approved":
+        flash(
+            "Chat is available only after the adoption is approved.",
+            "warning"
+        )
+        return redirect(
+            url_for(
+                "pets.pet_details",
+                pet_id=pet.id
+            )
+        )
+
+    # Only owner or adopter can send messages
+    if (
+        current_user_id != adoption_request.adopter_id
+        and current_user_id != pet.owner_id
+    ):
+        flash(
+            "You are not allowed to send messages here.",
+            "danger"
+        )
+        return redirect(
+            url_for("pets.pet_list")
+        )
+
+    message_text = request.form.get(
+        "message",
+        ""
+    ).strip()
+
+    if not message_text:
+
+        flash(
+            "Message cannot be empty.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "pets.chat",
+                request_id=request_id
+            )
+        )
+
+    # Determine the other person
+    if current_user_id == pet.owner_id:
+
+        receiver_id = adoption_request.adopter_id
+
+    else:
+
+        receiver_id = pet.owner_id
+
+    new_message = Message(
+        sender_id=current_user_id,
+        receiver_id=receiver_id,
+        adoption_request_id=adoption_request.id,
+        message=message_text
+    )
+
+    db.session.add(new_message)
+    db.session.commit()
+
+    return redirect(
+        url_for(
+            "pets.chat",
+            request_id=request_id
+        )
     )
