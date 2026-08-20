@@ -12,12 +12,15 @@ from models.user import User
 from models.pet import Pet
 from models.adoption_request import AdoptionRequest
 
-
+# Blueprint for administrative routes under the '/admin' path prefix
 admin = Blueprint("admin", __name__, url_prefix="/admin")
 
 
 def admin_required():
-
+    """
+    Helper function to verify if the currently logged-in user is an administrator.
+    Displays a warning flash message and returns False if unauthorized.
+    """
     if "user_id" not in session:
         flash("Please login first.", "warning")
         return False
@@ -31,14 +34,13 @@ def admin_required():
 
 @admin.route("/")
 def admin_dashboard():
-
+    """Render the administrator dashboard containing global statistics."""
     if not admin_required():
-
         if "user_id" not in session:
             return redirect(url_for("auth.login"))
-
         return redirect(url_for("dashboard"))
 
+    # Query statistics for dashboard metrics
     user_count = User.query.count()
     pet_count = Pet.query.count()
     application_count = AdoptionRequest.query.count()
@@ -65,14 +67,13 @@ def admin_dashboard():
         pending_applications=pending_applications
     )
 
+
 @admin.route("/users")
 def manage_users():
-
+    """Render page listing all registered users."""
     if not admin_required():
-
         if "user_id" not in session:
             return redirect(url_for("auth.login"))
-
         return redirect(url_for("dashboard"))
 
     users = (
@@ -86,19 +87,18 @@ def manage_users():
         users=users
     )
 
+
 @admin.route("/users/<int:user_id>/delete", methods=["POST"])
 def delete_user(user_id):
-
+    """Delete a user account from the system."""
     if not admin_required():
-
         if "user_id" not in session:
             return redirect(url_for("auth.login"))
-
         return redirect(url_for("dashboard"))
 
     user = User.query.get_or_404(user_id)
 
-    # Admin cannot delete their own account
+    # Prevent admin from deleting their own currently active account
     if user.id == session["user_id"]:
         flash("You cannot delete your own admin account.", "danger")
         return redirect(url_for("admin.manage_users"))
@@ -113,14 +113,13 @@ def delete_user(user_id):
 
     return redirect(url_for("admin.manage_users"))
 
+
 @admin.route("/pets")
 def manage_pets():
-
+    """Render page listing all registered pets."""
     if not admin_required():
-
         if "user_id" not in session:
             return redirect(url_for("auth.login"))
-
         return redirect(url_for("dashboard"))
 
     pets = (
@@ -134,14 +133,13 @@ def manage_pets():
         pets=pets
     )
 
+
 @admin.route("/pets/<int:pet_id>/delete", methods=["POST"])
 def delete_pet(pet_id):
-
+    """Delete a pet listing from the system."""
     if not admin_required():
-
         if "user_id" not in session:
             return redirect(url_for("auth.login"))
-
         return redirect(url_for("dashboard"))
 
     pet = Pet.query.get_or_404(pet_id)
@@ -156,14 +154,13 @@ def delete_pet(pet_id):
 
     return redirect(url_for("admin.manage_pets"))
 
+
 @admin.route("/applications")
 def manage_applications():
-
+    """Render page listing all adoption requests."""
     if not admin_required():
-
         if "user_id" not in session:
             return redirect(url_for("auth.login"))
-
         return redirect(url_for("dashboard"))
 
     requests = (
