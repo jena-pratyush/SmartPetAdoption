@@ -23,6 +23,7 @@
 
                         <p class="text-muted mb-0">
                             {{ request.pet.species }}
+
                             {% if request.pet.breed %}
                                 • {{ request.pet.breed }}
                             {% endif %}
@@ -66,13 +67,23 @@
                     {{ request.created_at.strftime("%d %B %Y") }}
                 </p>
 
+
                 {% if request.status == "Approved" %}
 
-                    <div class="alert alert-success mb-0">
+                    <div class="alert alert-success">
                         🎉 Congratulations! Your adoption request
                         for <strong>{{ request.pet.name }}</strong>
                         has been approved.
                     </div>
+
+                    <a
+                        href="{{ url_for('pets.chat', request_id=request.id) }}"
+                        class="btn btn-success">
+
+                        💬 Chat with Owner
+
+                    </a>
+
 
                 {% elif request.status == "Rejected" %}
 
@@ -81,6 +92,7 @@
                         <strong>{{ request.pet.name }}</strong>
                         was not approved.
                     </div>
+
 
                 {% else %}
 

@@ -3,6 +3,7 @@ from config import Config
 from extensions import db
 from models import User
 from models.pet import Pet
+from models.message import Message
 
 from routes.auth import auth
 from routes.pet import pets

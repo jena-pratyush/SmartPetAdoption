@@ -141,6 +141,26 @@
 
                 {% endif %}
 
+
+                <!-- Chat button -->
+
+                {% if request.status == "Approved" %}
+
+                <div class="mt-3">
+
+                    <a
+                        href="{{ url_for('pets.chat', request_id=request.id) }}"
+                        class="btn btn-success">
+
+                        💬 Chat with Adopter
+
+                    </a>
+
+                </div>
+
+                {% endif %}
+
+
             </div>
 
         </div>
