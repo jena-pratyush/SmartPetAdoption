@@ -1,29 +1,76 @@
-{% if session.get("user_id") %}
+<nav class="navbar navbar-expand-lg site-navbar sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <span class="brand-mark">
+                <i class="bi bi-heart-pulse-fill"></i>
+            </span>
+            Smart Pet Adoption & Care Platform
+        </a>
 
-<li class="nav-item">
-    <a class="nav-link" href="/dashboard">
-        Dashboard
-    </a>
-</li>
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar"
+            aria-controls="mainNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-<li class="nav-item">
-    <a class="nav-link text-warning" href="/logout">
-        Logout
-    </a>
-</li>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('pets.pet_list') }}">
+                        <i class="bi bi-search"></i>
+                        Browse
+                    </a>
+                </li>
 
-{% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/#pet-care-hub">
+                        <i class="bi bi-journal-text"></i>
+                        Pet Care
+                    </a>
+                </li>
 
-<li class="nav-item">
-    <a class="nav-link" href="/login">
-        Login
-    </a>
-</li>
+                {% if session.get("user_id") %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard">
+                        <i class="bi bi-grid-1x2"></i>
+                        Dashboard
+                    </a>
+                </li>
 
-<li class="nav-item">
-    <a class="nav-link" href="/register">
-        Register
-    </a>
-</li>
+                {% if session.get("role") == "admin" %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">
+                        <i class="bi bi-shield-check"></i>
+                        Admin
+                    </a>
+                </li>
+                {% endif %}
 
-{% endif %}
+                <li class="nav-item">
+                    <a class="btn btn-outline-dark btn-sm nav-cta" href="/logout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
+                    </a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">
+                        Login
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="btn btn-dark btn-sm nav-cta" href="/register">
+                        Get started
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

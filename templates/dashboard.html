@@ -4,106 +4,67 @@
 
 {% block content %}
 
-<div class="container mt-5">
+<div class="container page-shell">
+    <div class="dashboard-header">
+        <div>
+            <span class="eyebrow">Personal dashboard</span>
+            <h1>Welcome back, {{ session.user_name }}</h1>
+            <p class="text-muted mb-0">
+                Manage your pet listings, saved favorites, and adoption conversations.
+            </p>
+        </div>
 
-    <h2>Welcome {{ session.user_name }} 👋</h2>
+        <a href="{{ url_for('pets.add_pet') }}" class="btn btn-dark">
+            <i class="bi bi-plus-lg"></i>
+            Add pet
+        </a>
+    </div>
 
-    <p class="text-muted">
-        Manage your pets, adoption applications, and favorites.
-    </p>
-
-    <div class="list-group mt-4">
-
-        <!-- Browse Pets -->
-
-        <a
-            href="{{ url_for('pets.pet_list') }}"
-            class="list-group-item list-group-item-action">
-
-            🐶 Browse Pets
-
+    <div class="dashboard-grid">
+        <a href="{{ url_for('pets.pet_list') }}" class="dashboard-card">
+            <i class="bi bi-search-heart card-icon"></i>
+            <span>Browse Pets</span>
+            <small>Discover available companions</small>
         </a>
 
-
-        <!-- Add Pet -->
-
-        <a
-            href="{{ url_for('pets.add_pet') }}"
-            class="list-group-item list-group-item-action">
-
-            ➕ Add a Pet
-
+        <a href="{{ url_for('pets.add_pet') }}" class="dashboard-card">
+            <i class="bi bi-plus-square card-icon"></i>
+            <span>Add a Pet</span>
+            <small>Create a new adoption listing</small>
         </a>
 
-
-        <!-- My Pets -->
-
-        <a
-            href="{{ url_for('pets.my_pets') }}"
-            class="list-group-item list-group-item-action">
-
-            🐾 My Pets
-
+        <a href="{{ url_for('pets.my_pets') }}" class="dashboard-card">
+            <i class="bi bi-collection card-icon"></i>
+            <span>My Pets</span>
+            <small>Update listings and availability</small>
         </a>
 
-
-        <!-- Applications for my pets -->
-
-        <a
-            href="{{ url_for('pets.applications') }}"
-            class="list-group-item list-group-item-action">
-
-            📋 Adoption Applications
-
+        <a href="{{ url_for('pets.applications') }}" class="dashboard-card">
+            <i class="bi bi-inbox card-icon"></i>
+            <span>Adoption Applications</span>
+            <small>Review requests for your pets</small>
         </a>
 
-
-        <!-- My Favorites -->
-
-        <a
-            href="{{ url_for('pets.my_favorites') }}"
-            class="list-group-item list-group-item-action">
-
-            ❤️ My Favorites
-
+        <a href="{{ url_for('pets.my_favorites') }}" class="dashboard-card">
+            <i class="bi bi-heart card-icon"></i>
+            <span>My Favorites</span>
+            <small>Return to pets you saved</small>
         </a>
 
-
-        <!-- Applications I submitted -->
-
-        <a
-            href="{{ url_for('pets.my_applications') }}"
-            class="list-group-item list-group-item-action">
-
-            📋 My Applications
-
+        <a href="{{ url_for('pets.my_applications') }}" class="dashboard-card">
+            <i class="bi bi-clipboard2-check card-icon"></i>
+            <span>My Applications</span>
+            <small>Follow your submitted requests</small>
         </a>
 
         {% if session.get("role") == "admin" %}
-
-        <a
-            href="{{ url_for('admin.admin_dashboard') }}"
-            class="list-group-item list-group-item-action">
-
-            ⚙️ Admin Panel
-
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="dashboard-card dashboard-card-admin">
+            <i class="bi bi-shield-lock card-icon"></i>
+            <span>Admin Panel</span>
+            <small>Manage the platform</small>
         </a>
-
         {% endif %}
-
-
-        <!-- Logout -->
-
-        <a
-            href="{{ url_for('auth.logout') }}"
-            class="list-group-item list-group-item-action text-danger">
-
-            🚪 Logout
-
-        </a>
-
     </div>
-
 </div>
 
 {% endblock %}

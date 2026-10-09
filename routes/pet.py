@@ -323,7 +323,7 @@ def update_application(request_id, action):
         db.session.commit()
 
         flash(
-            f"Adoption request for {pet.name} approved!",
+            f"Adoption request for {pet.name} approved! You can now chat with the adopter. If the adoption falls through, you can put {pet.name} back for adoption at any time.",
             "success"
         )
 
@@ -344,6 +344,70 @@ def update_application(request_id, action):
     return redirect(
         url_for("pets.applications")
     )
+
+
+# =========================================================
+# RELIST PET FOR ADOPTION
+# =========================================================
+
+@pets.route("/pets/<int:pet_id>/relist", methods=["POST"])
+def relist_pet(pet_id):
+    """Put an adopted or pending pet back up for adoption."""
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    pet = Pet.query.get_or_404(pet_id)
+
+    # Security check: Only the pet owner or admin can relist
+    if pet.owner_id != session["user_id"] and session.get("role") != "admin":
+        flash("You are not allowed to manage this pet.", "danger")
+        return redirect(url_for("pets.my_pets"))
+
+    pet.status = "available"
+    db.session.commit()
+
+    flash(
+        f"{pet.name} is now back up for adoption and visible to all adopters!",
+        "success"
+    )
+
+    return redirect(request.referrer or url_for("pets.my_pets"))
+
+
+# =========================================================
+# CANCEL ADOPTION APPLICATION
+# =========================================================
+
+@pets.route(
+    "/applications/<int:request_id>/cancel-adoption",
+    methods=["POST"]
+)
+def cancel_adoption(request_id):
+    """Cancel an approved adoption application and put the pet back up for adoption."""
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    adoption_request = AdoptionRequest.query.get_or_404(request_id)
+    pet = Pet.query.get_or_404(adoption_request.pet_id)
+
+    # Security check: Only the pet owner or admin can cancel the adoption
+    if pet.owner_id != session["user_id"] and session.get("role") != "admin":
+        flash("You are not allowed to manage this application.", "danger")
+        return redirect(url_for("pets.applications"))
+
+    adoption_request.status = "Cancelled"
+    pet.status = "available"
+    db.session.commit()
+
+    flash(
+        f"Adoption for {pet.name} has been cancelled. {pet.name} is now back up for adoption!",
+        "info"
+    )
+
+    return redirect(url_for("pets.applications"))
+
 
 
 # =========================================================
@@ -575,8 +639,8 @@ def chat(request_id):
 
     current_user_id = session["user_id"]
 
-    # Chat is only available after approval
-    if adoption_request.status != "Approved":
+    # Chat is available after approval or if previously approved/cancelled
+    if adoption_request.status not in ["Approved", "Cancelled"]:
         flash(
             "Chat is available only after the adoption is approved.",
             "warning"
@@ -649,13 +713,13 @@ def send_message(request_id):
     # Chat only after approval
     if adoption_request.status != "Approved":
         flash(
-            "Chat is available only after the adoption is approved.",
+            "Chat is closed because this adoption is no longer active.",
             "warning"
         )
         return redirect(
             url_for(
-                "pets.pet_details",
-                pet_id=pet.id
+                "pets.chat",
+                request_id=request_id
             )
         )
 

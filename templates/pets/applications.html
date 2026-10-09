@@ -32,8 +32,10 @@
                             bg-success
                         {% elif request.status == 'Rejected' %}
                             bg-danger
+                        {% elif request.status == 'Cancelled' %}
+                            bg-secondary
                         {% else %}
-                            bg-warning
+                            bg-warning text-dark
                         {% endif %}
                     ">
                         {{ request.status }}
@@ -142,17 +144,51 @@
                 {% endif %}
 
 
-                <!-- Chat button -->
+                <!-- Approved Actions (Chat + Put Back for Adoption) -->
 
                 {% if request.status == "Approved" %}
 
-                <div class="mt-3">
+                <div class="mt-3 d-flex flex-wrap gap-2 align-items-center">
 
                     <a
                         href="{{ url_for('pets.chat', request_id=request.id) }}"
                         class="btn btn-success">
 
                         💬 Chat with Adopter
+
+                    </a>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('pets.cancel_adoption', request_id=request.id) }}"
+                        style="display: inline;">
+
+                        <button
+                            type="submit"
+                            class="btn btn-outline-danger"
+                            onclick="return confirm('Cancel this adoption and put {{ request.pet.name }} back up for adoption?');">
+
+                            Put Pet Back for Adoption
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {% elif request.status == "Cancelled" %}
+
+                <div class="mt-3 d-flex flex-wrap gap-2 align-items-center">
+
+                    <span class="text-muted small">
+                        Adoption was cancelled. {{ request.pet.name }} is back up for adoption.
+                    </span>
+
+                    <a
+                        href="{{ url_for('pets.chat', request_id=request.id) }}"
+                        class="btn btn-outline-secondary btn-sm">
+
+                        💬 View Chat History
 
                     </a>
 

@@ -61,7 +61,7 @@
                     <p>
                         <strong>Status:</strong>
 
-                        <span class="badge bg-success">
+                        <span class="badge {% if pet.status == 'available' %}bg-success{% elif pet.status == 'adopted' %}bg-secondary{% else %}bg-warning{% endif %}">
                             {{ pet.status }}
                         </span>
                     </p>
@@ -70,13 +70,29 @@
 
                 {% if session.get("user_id") == pet.owner_id %}
 
-                <div class="mt-4">
+                <div class="mt-4 d-flex flex-wrap gap-2">
 
                     <a
                         href="{{ url_for('pets.edit_pet', pet_id=pet.id) }}"
                         class="btn btn-warning">
                         Edit Pet
                     </a>
+
+                    {% if pet.status == 'adopted' %}
+                    <form
+                        method="POST"
+                        action="{{ url_for('pets.relist_pet', pet_id=pet.id) }}"
+                        style="display: inline;">
+
+                        <button
+                            type="submit"
+                            class="btn btn-success"
+                            onclick="return confirm('Put {{ pet.name }} back up for adoption?');">
+                            Put Back for Adoption
+                        </button>
+
+                    </form>
+                    {% endif %}
 
                     <form
                         method="POST"

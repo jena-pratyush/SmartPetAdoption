@@ -4,88 +4,434 @@
 
 {% block content %}
 
-<section class="hero text-center">
-
+<section class="hero">
     <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="eyebrow">Trusted pet adoption platform</span>
+                <h1>Find the right companion with confidence.</h1>
 
-        <h1>Find Your Forever Friend 🐶</h1>
+                <p class="lead mt-3">
+                    Browse verified pets, connect with caring owners, and manage adoption requests from one clean dashboard.
+                </p>
 
-        <p class="lead mt-3">
+                <div class="d-flex flex-wrap gap-3 mt-4">
+                    <a href="{{ url_for('pets.pet_list') }}" class="btn btn-dark btn-lg">
+                        <i class="bi bi-search"></i>
+                        Browse pets
+                    </a>
 
-            Connecting loving homes with pets in need.
+                    <a href="#pet-care-hub" class="btn btn-outline-dark btn-lg">
+                        <i class="bi bi-journal-text"></i>
+                        Pet care guides
+                    </a>
 
-        </p>
+                    <a href="/register" class="btn btn-outline-dark btn-lg">
+                        <i class="bi bi-person-plus"></i>
+                        Create account
+                    </a>
+                </div>
+            </div>
 
-        <a href="#" class="btn btn-light btn-lg mt-3">
-
-            Browse Pets
-
-        </a>
-
+            <div class="col-lg-6">
+                <div class="hero-panel">
+                    <img
+                        src="{{ url_for('static', filename='images/pets-play.jpeg') }}"
+                        class="hero-image"
+                        alt="Dog and cat playing with a red ball">
+                </div>
+            </div>
+        </div>
     </div>
-
 </section>
 
-<div class="container my-5">
+<section class="pet-strip">
+    <div class="container">
+        <img
+            src="{{ url_for('static', filename='images/pet-family-strip.png') }}"
+            alt="Group of adoptable pets"
+            class="pet-strip-image">
+    </div>
+</section>
 
-    <div class="row text-center">
-
+<section class="container section-block">
+    <div class="row g-4">
         <div class="col-md-4">
-
-            <div class="card feature-card shadow">
-
-                <div class="card-body">
-
-                    <h3>🐶</h3>
-
-                    <h4>Adopt Pets</h4>
-
-                    <p>Find loving pets waiting for a forever home.</p>
-
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-search-heart"></i>
                 </div>
-
+                <h4>Explore better matches</h4>
+                <p>Review breed, age, status, and owner details before sending an adoption request.</p>
             </div>
-
         </div>
 
         <div class="col-md-4">
-
-            <div class="card feature-card shadow">
-
-                <div class="card-body">
-
-                    <h3>❤️</h3>
-
-                    <h4>Save Lives</h4>
-
-                    <p>Every adoption gives an animal a second chance.</p>
-
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-clipboard2-check"></i>
                 </div>
-
+                <h4>Track applications</h4>
+                <p>Keep adoption requests, favorites, and pet listings organized in a focused workspace.</p>
             </div>
-
         </div>
 
         <div class="col-md-4">
-
-            <div class="card feature-card shadow">
-
-                <div class="card-body">
-
-                    <h3>🏠</h3>
-
-                    <h4>Trusted Shelters</h4>
-
-                    <p>Connect with verified shelters and pet owners.</p>
-
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-shield-check"></i>
                 </div>
-
+                <h4>Manage responsibly</h4>
+                <p>Admins can monitor users, pets, and pending requests through a practical dashboard.</p>
             </div>
-
         </div>
+    </div>
+</section>
 
+<!-- Pet Care & General Information Section -->
+<section class="container section-block" id="pet-care-hub">
+    <div class="mb-4">
+        <span class="eyebrow">Pet care resources</span>
+        <h2>General pet care and guides</h2>
+        <p class="text-muted mb-0">
+            Helpful information on caring for kittens, puppies, required vaccines, and nutrition.
+        </p>
     </div>
 
+    <div class="row g-4">
+        <!-- 1. Kitten Care -->
+        <div class="col-md-4">
+            <div class="feature-card d-flex flex-column justify-content-between">
+                <div>
+                    <div class="feature-icon">
+                        <i class="bi bi-balloon-heart"></i>
+                    </div>
+                    <h4>How to care for a kitten</h4>
+                    <p>Feeding schedules, temperature, litter box training, and weaning tips for young kittens.</p>
+                </div>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline-dark btn-sm" onclick="openCareGuide('kitten-care')">
+                        Read guide
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Vaccines -->
+        <div class="col-md-4">
+            <div class="feature-card d-flex flex-column justify-content-between">
+                <div>
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-plus"></i>
+                    </div>
+                    <h4>Required vaccines & schedule</h4>
+                    <p>Core vaccine timelines for dogs (DHPP, Rabies) and cats (FVRCP, Rabies).</p>
+                </div>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline-dark btn-sm" onclick="openCareGuide('vaccine-schedule')">
+                        View schedule
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Puppy Care -->
+        <div class="col-md-4">
+            <div class="feature-card d-flex flex-column justify-content-between">
+                <div>
+                    <div class="feature-icon">
+                        <i class="bi bi-trophy"></i>
+                    </div>
+                    <h4>Puppy care & house training</h4>
+                    <p>Potty routines, crate training basics, and early positive socialization steps.</p>
+                </div>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline-dark btn-sm" onclick="openCareGuide('puppy-training')">
+                        Read guide
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Nutrition -->
+        <div class="col-md-4">
+            <div class="feature-card d-flex flex-column justify-content-between">
+                <div>
+                    <div class="feature-icon">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <h4>Safe vs. toxic foods</h4>
+                    <p>Foods toxic to cats and dogs (chocolate, onions, grapes) and safe healthy snacks.</p>
+                </div>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline-dark btn-sm" onclick="openCareGuide('food-safety')">
+                        View list
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Adoption Rule -->
+        <div class="col-md-4">
+            <div class="feature-card d-flex flex-column justify-content-between">
+                <div>
+                    <div class="feature-icon">
+                        <i class="bi bi-house-heart"></i>
+                    </div>
+                    <h4>The 3-3-3 adoption rule</h4>
+                    <p>What to expect during your newly adopted pet's first 3 days, 3 weeks, and 3 months.</p>
+                </div>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline-dark btn-sm" onclick="openCareGuide('adoption-rule')">
+                        Read guide
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Warning Signs -->
+        <div class="col-md-4">
+            <div class="feature-card d-flex flex-column justify-content-between">
+                <div>
+                    <div class="feature-icon">
+                        <i class="bi bi-heart-pulse"></i>
+                    </div>
+                    <h4>When to see a vet</h4>
+                    <p>Important warning signs and red-flag symptoms that need veterinary attention.</p>
+                </div>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline-dark btn-sm" onclick="openCareGuide('vet-warning-signs')">
+                        View signs
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Simple Pet Care Guide Modal -->
+<div class="modal fade" id="petCareModal" tabindex="-1" aria-labelledby="petCareModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="petCareModalTitle">Pet Care Guide</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" id="modalGuideContent">
+                <!-- Injected by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <a id="modalExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark btn-sm">
+                    <i class="bi bi-box-arrow-up-right"></i> External resource
+                </a>
+                <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
+<script>
+const PET_CARE_GUIDES = {
+    'kitten-care': {
+        title: "How to Take Care of a Kitten (0–12 Weeks)",
+        externalUrl: "https://www.aspca.org/pet-care/cat-care/general-cat-care",
+        content: `
+            <div class="alert alert-warning mb-3">
+                <strong>Note:</strong> Never feed cow's milk to kittens as it causes diarrhea. Use Kitten Milk Replacer (KMR) if needed.
+            </div>
+
+            <h5 class="fw-bold mb-3">Care by age</h5>
+            <div class="mb-3">
+                <h6><strong>0 to 4 Weeks</strong></h6>
+                <p class="text-muted">Keep kittens in a warm nesting box with a wrapped heating pad. Feed Kitten Milk Replacer every 2–3 hours. Help them eliminate after feeding using a warm, damp cotton ball.</p>
+            </div>
+
+            <div class="mb-3">
+                <h6><strong>4 to 8 Weeks</strong></h6>
+                <p class="text-muted">Wean them onto wet kitten food mixed with KMR. Introduce a low-sided litter box with non-clumping litter.</p>
+            </div>
+
+            <div class="mb-3">
+                <h6><strong>8 to 12 Weeks</strong></h6>
+                <p class="text-muted">Feed quality kitten food 3–4 times daily. Take them to a vet for their first wellness check, deworming, and FVRCP vaccination.</p>
+            </div>
+        `
+    },
+    'vaccine-schedule': {
+        title: "Required Vaccines & Schedule",
+        externalUrl: "https://www.aaha.org/your-pet/pet-owner-education/aaha-guidelines-for-pet-owners/vaccination-guidelines/",
+        content: `
+            <h6 class="fw-bold mb-2">Dog & Puppy Vaccines</h6>
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Age</th>
+                            <th>Core Vaccines</th>
+                            <th>Lifestyle / Optional</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>6–8 Weeks</td>
+                            <td>DHPP (Distemper, Parvo)</td>
+                            <td>Bordetella</td>
+                        </tr>
+                        <tr>
+                            <td>10–12 Weeks</td>
+                            <td>DHPP Booster</td>
+                            <td>Leptospirosis</td>
+                        </tr>
+                        <tr>
+                            <td>14–16 Weeks</td>
+                            <td>DHPP Booster + Rabies</td>
+                            <td>Leptospirosis Booster</td>
+                        </tr>
+                        <tr>
+                            <td>Adult (1 yr+)</td>
+                            <td>DHPP & Rabies Booster</td>
+                            <td>Bordetella</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h6 class="fw-bold mb-2">Cat & Kitten Vaccines</h6>
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Age</th>
+                            <th>Core Vaccines</th>
+                            <th>Lifestyle / Optional</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>6–8 Weeks</td>
+                            <td>FVRCP</td>
+                            <td>Deworming</td>
+                        </tr>
+                        <tr>
+                            <td>10–12 Weeks</td>
+                            <td>FVRCP Booster</td>
+                            <td>FeLV (Feline Leukemia)</td>
+                        </tr>
+                        <tr>
+                            <td>14–16 Weeks</td>
+                            <td>FVRCP Booster + Rabies</td>
+                            <td>FeLV Booster</td>
+                        </tr>
+                        <tr>
+                            <td>Adult (1 yr+)</td>
+                            <td>FVRCP & Rabies Booster</td>
+                            <td>FeLV (if outdoors)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `
+    },
+    'puppy-training': {
+        title: "Puppy Care & House Training",
+        externalUrl: "https://www.akc.org/expert-advice/training/how-to-potty-train-a-puppy/",
+        content: `
+            <h5 class="fw-bold mb-3">House training guidelines</h5>
+            <ul>
+                <li class="mb-2"><strong>Frequent potty breaks:</strong> Take your puppy outside immediately upon waking, after eating or drinking, and after active play.</li>
+                <li class="mb-2"><strong>Crate training:</strong> The crate should be comfortable and safe—never use it as a punishment.</li>
+                <li class="mb-2"><strong>Immediate praise:</strong> Reward your puppy with a treat right when they finish outside.</li>
+                <li class="mb-2"><strong>Socialization (8–16 weeks):</strong> Gently introduce them to new sounds, people, surfaces, and friendly vaccinated dogs.</li>
+            </ul>
+        `
+    },
+    'food-safety': {
+        title: "Safe vs. Toxic Foods for Pets",
+        externalUrl: "https://www.aspca.org/pet-care/animal-poison-control/people-foods-to-avoid-feeding-your-pets",
+        content: `
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card p-3 border-danger h-100">
+                        <h6 class="text-danger fw-bold"><i class="bi bi-x-circle me-1"></i> Toxic foods to avoid</h6>
+                        <ul class="mb-0 ps-3 text-muted small">
+                            <li>Chocolate & caffeine</li>
+                            <li>Xylitol (artificial sweetener)</li>
+                            <li>Grapes & raisins</li>
+                            <li>Onions, garlic & chives</li>
+                            <li>Lilies (strictly toxic to cats)</li>
+                            <li>Cooked bones (splinter hazard)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card p-3 border-success h-100">
+                        <h6 class="text-success fw-bold"><i class="bi bi-check-circle me-1"></i> Safe healthy treats</h6>
+                        <ul class="mb-0 ps-3 text-muted small">
+                            <li>Plain cooked chicken or turkey</li>
+                            <li>Plain canned pumpkin</li>
+                            <li>Cooked carrots & green beans</li>
+                            <li>Fresh blueberries & apple slices (no seeds)</li>
+                            <li>Plain white rice</li>
+                            <li>Peanut butter (xylitol-free)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `
+    },
+    'adoption-rule': {
+        title: "The 3-3-3 Adoption Rule",
+        externalUrl: "https://www.humanesociety.org/resources/how-help-rescue-dog-adjust",
+        content: `
+            <p class="text-muted mb-3">
+                Adopted pets need time to decompress and adapt to a new home. Follow the 3-3-3 timeline:
+            </p>
+
+            <div class="card p-3 mb-2 bg-light">
+                <strong>First 3 Days: Decompressing</strong>
+                <p class="text-muted mb-0 small">The pet may feel scared, hide, or eat less. Keep things quiet and give them their own safe resting space.</p>
+            </div>
+
+            <div class="card p-3 mb-2 bg-light">
+                <strong>First 3 Weeks: Learning the routine</strong>
+                <p class="text-muted mb-0 small">The pet starts to feel comfortable, learns feeding and walking routines, and shows their real personality.</p>
+            </div>
+
+            <div class="card p-3 bg-light">
+                <strong>First 3 Months: Feeling at home</strong>
+                <p class="text-muted mb-0 small">The pet builds trust, feels secure in the family, and knows they are in their forever home.</p>
+            </div>
+        `
+    },
+    'vet-warning-signs': {
+        title: "When to See a Vet",
+        externalUrl: "https://www.avma.org/resources/pet-owners/petcare/emergency-care",
+        content: `
+            <h5 class="fw-bold mb-3">Red-flag symptoms</h5>
+            <ul>
+                <li class="mb-2"><strong>Difficulty breathing:</strong> Heavy panting in cats or continuous labored breathing.</li>
+                <li class="mb-2"><strong>Inability to urinate:</strong> Straining in the litter box (especially critical in male cats).</li>
+                <li class="mb-2"><strong>Repeated vomiting / refusal to drink:</strong> For more than 24 hours.</li>
+                <li class="mb-2"><strong>Severe lethargy:</strong> Collapse, loss of balance, or sudden weakness.</li>
+            </ul>
+        `
+    }
+};
+
+function openCareGuide(guideKey) {
+    const guide = PET_CARE_GUIDES[guideKey];
+    if (!guide) return;
+
+    document.getElementById('petCareModalTitle').innerText = guide.title;
+    document.getElementById('modalGuideContent').innerHTML = guide.content;
+    document.getElementById('modalExternalLink').href = guide.externalUrl;
+
+    const modal = new bootstrap.Modal(document.getElementById('petCareModal'));
+    modal.show();
+}
+</script>
+
 {% endblock %}
+
+

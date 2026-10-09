@@ -42,6 +42,12 @@
                             Rejected
                         </span>
 
+                    {% elif request.status == "Cancelled" %}
+
+                        <span class="badge bg-secondary">
+                            Cancelled
+                        </span>
+
                     {% else %}
 
                         <span class="badge bg-warning text-dark">
@@ -93,6 +99,19 @@
                         was not approved.
                     </div>
 
+                {% elif request.status == "Cancelled" %}
+
+                    <div class="alert alert-secondary mb-2">
+                        This adoption was cancelled and <strong>{{ request.pet.name }}</strong> was put back up for adoption.
+                    </div>
+
+                    <a
+                        href="{{ url_for('pets.chat', request_id=request.id) }}"
+                        class="btn btn-outline-secondary btn-sm">
+
+                        💬 View Chat History
+
+                    </a>
 
                 {% else %}
 
