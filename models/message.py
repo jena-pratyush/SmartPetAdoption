@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from extensions import db
 
@@ -37,7 +37,7 @@ class Message(db.Model):
 
     created_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
+        default=lambda: datetime.now(timezone.utc),
         nullable=False
     )
 
@@ -67,5 +67,5 @@ class Message(db.Model):
     # Adoption application
     adoption_request = db.relationship(
         "AdoptionRequest",
-        backref="messages"
+        backref=db.backref("messages", cascade="all, delete-orphan")
     )

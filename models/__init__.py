@@ -4,3 +4,4 @@ from .pet import Pet
 from .message import Message
 from .adoption_request import AdoptionRequest
 from .favorite import Favorite
+from .pet_document import PetDocument

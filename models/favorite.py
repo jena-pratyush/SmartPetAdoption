@@ -1,5 +1,5 @@
 from extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class Favorite(db.Model):
@@ -29,18 +29,18 @@ class Favorite(db.Model):
     # Timestamp of when the favorite was created
     created_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc)
     )
 
     # Database relationships linking to related User and Pet objects
     user = db.relationship(
         "User",
-        backref="favorites"
+        backref=db.backref("favorites", cascade="all, delete-orphan")
     )
 
     pet = db.relationship(
         "Pet",
-        backref="favorited_by"
+        backref=db.backref("favorited_by", cascade="all, delete-orphan")
     )
 
     # Ensure a user can only favorite a specific pet once

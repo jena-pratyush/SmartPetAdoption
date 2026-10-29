@@ -80,9 +80,9 @@ main {
 
 .hero {
     background:
-        radial-gradient(circle at 82% 14%, rgba(255, 184, 77, 0.25), transparent 28%),
-        radial-gradient(circle at 10% 18%, rgba(32, 167, 123, 0.16), transparent 26%),
-        linear-gradient(120deg, #fff8ea 0%, #e7fbf1 52%, #fff1ec 100%);
+        radial-gradient(circle at 82% 14%, rgba(247, 247, 247, 0.25), transparent 28%),
+        radial-gradient(circle at 10% 18%, rgba(255, 255, 255, 0.16), transparent 26%),
+        linear-gradient(120deg, #fff8ea 0%, #ffffff 52%, #fff1ec 100%);
     border-bottom: 1px solid var(--line);
     padding: 76px 0 72px;
 }
@@ -155,7 +155,7 @@ main {
     background: #fffdf7;
     border: 1px solid rgba(255, 114, 94, 0.18);
     border-radius: 8px;
-    box-shadow: 0 24px 60px rgba(255, 114, 94, 0.18);
+    box-shadow: 0 24px 60px rgba(255, 255, 255, 0.18);
     height: 430px;
     object-fit: contain;
     padding: 18px;
@@ -371,7 +371,8 @@ main {
 
 .pet-card-image {
     height: 240px;
-    object-fit: cover;
+    object-fit: contain;
+    background: #f8fafc;
     width: 100%;
 }
 

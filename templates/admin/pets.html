@@ -74,7 +74,7 @@
                     </td>
 
                     <td>
-                        {{ pet.age }} years
+                        {{ pet.age }} {% if pet.age_unit == "Months" %}month{% else %}year{% endif %}{% if pet.age != 1 %}s{% endif %}
                     </td>
 
                     <td>

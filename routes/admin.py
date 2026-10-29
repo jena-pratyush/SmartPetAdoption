@@ -1,16 +1,19 @@
+import os
 from flask import (
     Blueprint,
     render_template,
     redirect,
     url_for,
     flash,
-    session
+    session,
+    current_app
 )
 from extensions import db
 
 from models.user import User
 from models.pet import Pet
 from models.adoption_request import AdoptionRequest
+from models.message import Message
 
 # Blueprint for administrative routes under the '/admin' path prefix
 admin = Blueprint("admin", __name__, url_prefix="/admin")
@@ -103,6 +106,24 @@ def delete_user(user_id):
         flash("You cannot delete your own admin account.", "danger")
         return redirect(url_for("admin.manage_users"))
 
+    # Remove any pet images uploaded by this user
+    for pet in user.pets:
+        if pet.image:
+            image_path = os.path.join(
+                current_app.config["UPLOAD_FOLDER"],
+                pet.image
+            )
+            if os.path.exists(image_path):
+                try:
+                    os.remove(image_path)
+                except OSError:
+                    pass
+
+    # Delete any messages sent or received by this user
+    Message.query.filter(
+        (Message.sender_id == user.id) | (Message.receiver_id == user.id)
+    ).delete(synchronize_session=False)
+
     db.session.delete(user)
     db.session.commit()
 
@@ -143,6 +164,30 @@ def delete_pet(pet_id):
         return redirect(url_for("dashboard"))
 
     pet = Pet.query.get_or_404(pet_id)
+
+    # Remove image file if it exists
+    if pet.image:
+        image_path = os.path.join(
+            current_app.config["UPLOAD_FOLDER"],
+            pet.image
+        )
+        if os.path.exists(image_path):
+            try:
+                os.remove(image_path)
+            except OSError:
+                pass
+
+    # Remove document files if any exist
+    for doc in pet.documents:
+        doc_path = os.path.join(
+            current_app.config["UPLOAD_FOLDER"],
+            doc.filename
+        )
+        if os.path.exists(doc_path):
+            try:
+                os.remove(doc_path)
+            except OSError:
+                pass
 
     db.session.delete(pet)
     db.session.commit()

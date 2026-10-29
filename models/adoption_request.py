@@ -1,5 +1,5 @@
 from extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class AdoptionRequest(db.Model):
@@ -42,16 +42,16 @@ class AdoptionRequest(db.Model):
     # Timestamp of when the request was made
     created_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc)
     )
 
     # Database relationships linking to related Pet and User objects
     pet = db.relationship(
         "Pet",
-        backref="adoption_requests"
+        backref=db.backref("adoption_requests", cascade="all, delete-orphan")
     )
 
     adopter = db.relationship(
         "User",
-        backref="adoption_requests"
+        backref=db.backref("adoption_requests", cascade="all, delete-orphan")
     )

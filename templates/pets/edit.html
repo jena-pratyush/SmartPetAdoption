@@ -8,7 +8,27 @@
 
     <h2 class="mb-4">Edit {{ pet.name }} 🐾</h2>
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
+
+        <!-- Current / New Photo -->
+        <div class="mb-3">
+            <label class="form-label">Pet Photo</label>
+            {% if pet.image %}
+            <div class="mb-2">
+                <img
+                    src="{{ url_for('uploaded_file', filename=pet.image) }}"
+                    alt="{{ pet.name }}"
+                    class="img-thumbnail"
+                    style="max-height: 180px; width: auto; max-width: 100%; object-fit: contain; background: #f8fafc;">
+            </div>
+            {% endif %}
+            <input
+                type="file"
+                name="image"
+                class="form-control"
+                accept=".jpg,.jpeg,.png,.webp">
+            <div class="form-text">Upload a new photo to replace the current one (optional).</div>
+        </div>
 
         <div class="mb-3">
             <label class="form-label">Pet Name</label>
@@ -46,6 +66,11 @@
                     Bird
                 </option>
 
+                <option value="Others"
+                    {% if pet.species == "Others" %}selected{% endif %}>
+                    Others
+                </option>
+
             </select>
         </div>
 
@@ -60,15 +85,33 @@
         </div>
 
         <div class="mb-3">
+            <label class="form-label">City / Location</label>
+            <input
+                type="text"
+                name="city"
+                class="form-control"
+                placeholder="e.g. Mumbai, Bengaluru, Delhi, etc."
+                value="{{ pet.city or '' }}">
+        </div>
+
+        <div class="mb-3">
             <label class="form-label">Age</label>
 
-            <input
-                type="number"
-                name="age"
-                class="form-control"
-                value="{{ pet.age }}"
-                min="0"
-                required>
+            <div class="input-group">
+                <input
+                    type="number"
+                    name="age"
+                    class="form-control"
+                    value="{{ pet.age }}"
+                    min="0"
+                    max="240"
+                    required>
+
+                <select name="age_unit" class="form-select" style="max-width: 130px;">
+                    <option value="Years" {% if pet.age_unit == "Years" %}selected{% endif %}>Years</option>
+                    <option value="Months" {% if pet.age_unit == "Months" %}selected{% endif %}>Months</option>
+                </select>
+            </div>
         </div>
 
         <div class="mb-3">
@@ -99,6 +142,54 @@
                 required>{{ pet.description }}</textarea>
         </div>
 
+        <!-- Optional Certificate / Paperwork Upload -->
+        <div class="mb-4">
+            <div class="form-check">
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="hasDocsEdit"
+                    {% if pet.documents %}checked{% endif %}
+                    onchange="document.getElementById('docUploadSectionEdit').style.display = this.checked ? 'block' : 'none';">
+                <label class="form-check-label fw-semibold" for="hasDocsEdit">
+                    I can provide certificates or paperwork for this pet (e.g. vaccination, medical, ownership)
+                </label>
+            </div>
+
+            <div id="docUploadSectionEdit" style="{% if not pet.documents %}display: none;{% endif %}" class="mt-2 p-3 bg-light rounded border">
+                {% if pet.documents %}
+                <label class="form-label small fw-semibold">Current Documents ({{ pet.documents|length }})</label>
+                <ul class="list-group mb-3 bg-white">
+                    {% for doc in pet.documents %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                        <span class="small text-truncate" style="max-width: 250px;">
+                            <i class="bi bi-file-earmark-text me-1 text-primary"></i> {{ doc.original_filename }}
+                        </span>
+                        <div class="d-flex gap-1">
+                            <a href="{{ url_for('uploaded_file', filename=doc.filename) }}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2">View</a>
+                            <button
+                                type="submit"
+                                formaction="{{ url_for('pets.delete_document', pet_id=pet.id, doc_id=doc.id) }}"
+                                formmethod="POST"
+                                class="btn btn-sm btn-outline-danger py-0 px-2"
+                                onclick="return confirm('Delete this document?');">Delete</button>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <label class="form-label small fw-semibold">Upload {% if pet.documents %}More{% endif %} Documents</label>
+                <input
+                    type="file"
+                    name="documents"
+                    class="form-control form-control-sm"
+                    multiple
+                    accept=".pdf,.jpg,.jpeg,.png,.webp">
+                <div class="form-text">PDF, JPG, PNG or WEBP (Optional).</div>
+            </div>
+        </div>
+
         <button
             type="submit"
             class="btn btn-success">
@@ -107,7 +198,7 @@
 
         <a
             href="{{ url_for('pets.pet_details', pet_id=pet.id) }}"
-            class="btn btn-secondary">
+            class="btn btn-secondary ms-2">
             Cancel
         </a>
 

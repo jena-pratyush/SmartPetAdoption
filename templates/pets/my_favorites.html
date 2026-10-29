@@ -24,7 +24,7 @@
                     src="{{ url_for('uploaded_file', filename=favorite.pet.image) }}"
                     class="card-img-top"
                     alt="{{ favorite.pet.name }}"
-                    style="height: 250px; object-fit: cover;">
+                    style="height: 250px; object-fit: contain; background: #f8fafc;">
 
                 {% endif %}
 
@@ -47,13 +47,18 @@
                         <br>
 
                         <strong>Age:</strong>
-                        {{ favorite.pet.age }} years
+                        {{ favorite.pet.age }} {% if favorite.pet.age_unit == "Months" %}month{% else %}year{% endif %}{% if favorite.pet.age != 1 %}s{% endif %}
 
                         <br>
 
                         <strong>Gender:</strong>
                         {{ favorite.pet.gender }}
 
+                        {% if favorite.pet.city %}
+                        <br>
+                        <strong>Location:</strong>
+                        <i class="bi bi-geo-alt-fill text-danger"></i> {{ favorite.pet.city }}
+                        {% endif %}
                     </p>
 
                     <span class="badge

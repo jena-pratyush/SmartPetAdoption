@@ -6,29 +6,95 @@
 
 <div class="container mt-5" style="max-width: 700px;">
 
-    <h2 class="mb-4">Add a Pet 🐾</h2>
+    <h2 class="mb-1">Add a Pet 🐾</h2>
+    <p class="text-muted mb-4">List a pet for adoption on the platform.</p>
 
-    <form method="POST" enctype="multipart/form-data">
-        
+    <!-- =============================================
+         LEGAL WARNING BANNER
+    ============================================== -->
+    <div class="legal-warning-box mb-4">
+
+        <div class="legal-warning-header">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>Legal Notice — Read Before Listing</span>
+        </div>
+
+        <div class="legal-warning-body">
+            <p>
+                <strong>Not all animals can be legally adopted or rehomed in India.</strong>
+                Listing a protected or wild animal is a criminal offence under Indian law and may result in
+                <strong>imprisonment of up to 7 years</strong> and heavy fines.
+            </p>
+
+            <p class="mb-2"><strong>You must NOT list animals that are:</strong></p>
+            <ul class="legal-list mb-3">
+                <li>
+                    <i class="bi bi-x-circle-fill text-danger"></i>
+                    Listed under <strong>Schedules I–IV of the Wildlife Protection Act, 1972</strong>
+                    (e.g. tigers, leopards, peacocks, parrots, tortoises, many snakes &amp; lizards)
+                </li>
+                <li>
+                    <i class="bi bi-x-circle-fill text-danger"></i>
+                    Protected under <strong>CITES</strong> (Convention on International Trade in Endangered Species)
+                </li>
+                <li>
+                    <i class="bi bi-x-circle-fill text-danger"></i>
+                    Wild-caught animals — whether injured, abandoned, or hand-raised
+                </li>
+                <li>
+                    <i class="bi bi-x-circle-fill text-danger"></i>
+                    Exotic animals acquired without a valid permit or NOC from the CWLW
+                </li>
+            </ul>
+
+            <p class="mb-2"><strong>Generally legal to rehome (domestic pets):</strong></p>
+            <ul class="legal-list mb-3">
+                <li><i class="bi bi-check-circle-fill text-success"></i> Dogs &amp; Cats</li>
+                <li><i class="bi bi-check-circle-fill text-success"></i> Rabbits, guinea pigs, hamsters</li>
+                <li><i class="bi bi-check-circle-fill text-success"></i> Common domestic fish &amp; birds <em>(budgerigars, cockatiels — NOT Indian parrots or hill mynas)</em></li>
+            </ul>
+
+            <div class="legal-links">
+                <span class="legal-links-label">
+                    <i class="bi bi-link-45deg"></i> Official Resources:
+                </span>
+                <a href="https://legislative.gov.in/sites/default/files/A1972-53.pdf"
+                   target="_blank" rel="noopener noreferrer">
+                    Wildlife Protection Act, 1972 (Full Text)
+                    <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+                <a href="https://moef.gov.in/en/division/environment-divisions/cites/"
+                   target="_blank" rel="noopener noreferrer">
+                    CITES — MoEFCC India
+                    <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+                <a href="https://www.pawsindia.org/illegal-wildlife-trade"
+                   target="_blank" rel="noopener noreferrer">
+                    PAWS India — Illegal Wildlife Trade Guide
+                    <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =============================================
+         ADD PET FORM
+    ============================================== -->
+    <form method="POST" enctype="multipart/form-data" id="addPetForm">
+
         <div class="mb-3">
-
             <label class="form-label">Pet Photo</label>
-
             <input
                 type="file"
                 name="image"
                 class="form-control"
                 accept=".jpg,.jpeg,.png,.webp">
-
-            <div class="form-text">
-                JPG, JPEG, PNG or WEBP. Maximum 5 MB.
-            </div>
-
+            <div class="form-text">JPG, JPEG, PNG or WEBP. Maximum 5 MB.</div>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Pet Name</label>
-
             <input
                 type="text"
                 name="name"
@@ -37,26 +103,20 @@
                 required>
         </div>
 
-
         <div class="mb-3">
             <label class="form-label">Species</label>
-
             <select name="species" class="form-select" required>
-
                 <option value="">Select species</option>
                 <option value="Dog">Dog</option>
                 <option value="Cat">Cat</option>
                 <option value="Rabbit">Rabbit</option>
                 <option value="Bird">Bird</option>
                 <option value="Others">Others</option>
-
             </select>
         </div>
 
-
         <div class="mb-3">
             <label class="form-label">Breed</label>
-
             <input
                 type="text"
                 name="breed"
@@ -64,36 +124,46 @@
                 placeholder="Example: Labrador">
         </div>
 
+        <div class="mb-3">
+            <label class="form-label">City / Location</label>
+            <input
+                type="text"
+                name="city"
+                class="form-control"
+                placeholder="e.g. Mumbai, Bengaluru, Delhi, etc.">
+            <div class="form-text">Where is this pet currently located?</div>
+        </div>
 
         <div class="mb-3">
             <label class="form-label">Age</label>
-
-            <input
-                type="number"
-                name="age"
-                class="form-control"
-                min="0"
-                max="100"
-                required>
+            <div class="input-group">
+                <input
+                    type="number"
+                    name="age"
+                    class="form-control"
+                    placeholder="e.g. 3"
+                    min="0"
+                    max="240"
+                    required>
+                <select name="age_unit" class="form-select" style="max-width: 130px;">
+                    <option value="Years">Years</option>
+                    <option value="Months">Months</option>
+                </select>
+            </div>
+            <div class="form-text">Enter the pet's age in years or months.</div>
         </div>
-
 
         <div class="mb-3">
             <label class="form-label">Gender</label>
-
             <select name="gender" class="form-select" required>
-
                 <option value="">Select gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
-
             </select>
         </div>
 
-
-        <div class="mb-3">
+        <div class="mb-4">
             <label class="form-label">Description</label>
-
             <textarea
                 name="description"
                 class="form-control"
@@ -102,17 +172,190 @@
                 required></textarea>
         </div>
 
+        <!-- Optional Certificate / Paperwork Upload -->
+        <div class="mb-4">
+            <div class="form-check">
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="hasDocs"
+                    onchange="document.getElementById('docUploadSection').style.display = this.checked ? 'block' : 'none';">
+                <label class="form-check-label fw-semibold" for="hasDocs">
+                    I can provide certificates or paperwork for this pet (e.g. vaccination, medical, ownership)
+                </label>
+            </div>
+            <div id="docUploadSection" style="display: none;" class="mt-2 p-3 bg-light rounded border">
+                <label class="form-label small fw-semibold">Upload Certificate / Documents</label>
+                <input
+                    type="file"
+                    name="documents"
+                    class="form-control form-control-sm"
+                    multiple
+                    accept=".pdf,.jpg,.jpeg,.png,.webp">
+                <div class="form-text">PDF, JPG, PNG or WEBP (Optional). You can select multiple files if needed.</div>
+            </div>
+        </div>
+
+        <!-- Mandatory legal acknowledgment -->
+        <div class="legal-ack-box mb-4" id="legalAckBox">
+            <div class="form-check">
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="legalAck"
+                    onchange="toggleSubmit(this)">
+                <label class="form-check-label" for="legalAck">
+                    I confirm that this animal is a <strong>legally owned domestic pet</strong>, is
+                    not a protected or wild species under India's Wildlife Protection Act, 1972 or
+                    CITES, and that I am legally permitted to rehome it. I understand that listing a
+                    protected animal may result in criminal prosecution.
+                </label>
+            </div>
+        </div>
 
         <button
             type="submit"
-            class="btn btn-success w-100">
-
+            id="submitBtn"
+            class="btn btn-success w-100"
+            disabled>
+            <i class="bi bi-plus-lg"></i>
             Add Pet
-
         </button>
 
     </form>
 
 </div>
+
+<style>
+/* ── Legal Warning Box ── */
+.legal-warning-box {
+    border: 1.5px solid #f59e0b;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fffbeb;
+}
+
+.legal-warning-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f59e0b;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 12px 18px;
+}
+
+.legal-warning-header i {
+    font-size: 1.1rem;
+}
+
+.legal-warning-body {
+    padding: 18px 20px;
+    font-size: 0.9rem;
+    color: #3b3018;
+}
+
+.legal-warning-body p {
+    margin-bottom: 0.6rem;
+    line-height: 1.6;
+}
+
+.legal-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.legal-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.legal-list li i {
+    margin-top: 2px;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+}
+
+.legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #f0d080;
+    font-size: 0.84rem;
+}
+
+.legal-links-label {
+    font-weight: 600;
+    color: #78540a;
+    white-space: nowrap;
+}
+
+.legal-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #b45309;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: 500;
+    transition: color 0.15s;
+}
+
+.legal-links a:hover {
+    color: #92400e;
+}
+
+.legal-links a i {
+    font-size: 0.75rem;
+}
+
+/* ── Legal Acknowledgment Box ── */
+.legal-ack-box {
+    background: #fafaf9;
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    padding: 16px 18px;
+    transition: border-color 0.2s;
+}
+
+.legal-ack-box.confirmed {
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+.legal-ack-box .form-check-label {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #374151;
+    cursor: pointer;
+}
+
+.legal-ack-box .form-check-input {
+    margin-top: 3px;
+    cursor: pointer;
+}
+</style>
+
+<script>
+function toggleSubmit(checkbox) {
+    const btn = document.getElementById('submitBtn');
+    const box = document.getElementById('legalAckBox');
+    btn.disabled = !checkbox.checked;
+    if (checkbox.checked) {
+        box.classList.add('confirmed');
+    } else {
+        box.classList.remove('confirmed');
+    }
+}
+</script>
 
 {% endblock %}

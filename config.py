@@ -28,8 +28,11 @@ class Config:
         "uploads"
     )
 
-    # Limit file upload size to 5MB
-    MAX_CONTENT_LENGTH = 5 * 1024 * 1024
+    # Limit total upload size to 16MB
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 
     # Allowed file extensions for pet image uploads
     ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
+
+    # Allowed file extensions for pet documents and certificates (PDF, images)
+    ALLOWED_DOC_EXTENSIONS = {"pdf", "png", "jpg", "jpeg", "webp"}

@@ -6,7 +6,8 @@ from flask import (
     url_for,
     flash,
     session,
-    current_app
+    current_app,
+    send_from_directory
 )
 
 import os
@@ -14,6 +15,7 @@ import uuid
 
 from extensions import db
 from models.pet import Pet
+from models.pet_document import PetDocument
 from models.adoption_request import AdoptionRequest
 from models.favorite import Favorite
 from models.message import Message
@@ -23,11 +25,23 @@ pets = Blueprint("pets", __name__)
 
 
 def allowed_file(filename):
-    """Verify if the uploaded file has a permitted extension."""
+    """Verify if the uploaded file has a permitted image extension."""
     return (
         "." in filename
         and filename.rsplit(".", 1)[1].lower()
         in current_app.config["ALLOWED_EXTENSIONS"]
+    )
+
+
+def allowed_doc_file(filename):
+    """Verify if the uploaded document has a permitted extension."""
+    allowed = current_app.config.get(
+        "ALLOWED_DOC_EXTENSIONS",
+        {"pdf", "png", "jpg", "jpeg", "webp"}
+    )
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower() in allowed
     )
 
 
@@ -37,12 +51,99 @@ def allowed_file(filename):
 
 @pets.route("/pets")
 def pet_list():
-    """Display all pets currently available for adoption."""
-    all_pets = Pet.query.filter_by(status="available").all()
+    """Display available pets with search and filtering options."""
+    query = Pet.query.filter_by(status="available")
+
+    q = request.args.get("q", "").strip()
+    species = request.args.get("species", "").strip()
+    gender = request.args.get("gender", "").strip()
+    age_group = request.args.get("age_group", "").strip()
+    city = request.args.get("city", "").strip()
+    has_doc = request.args.get("has_doc", "").strip()
+
+    if q:
+        query = query.filter(
+            db.or_(
+                Pet.name.ilike(f"%{q}%"),
+                Pet.breed.ilike(f"%{q}%"),
+                Pet.city.ilike(f"%{q}%"),
+                Pet.description.ilike(f"%{q}%")
+            )
+        )
+
+    if species and species != "All":
+        query = query.filter(Pet.species == species)
+
+    if gender and gender != "All":
+        query = query.filter(Pet.gender == gender)
+
+    if city and city != "All":
+        query = query.filter(Pet.city.ilike(f"%{city}%"))
+
+    if age_group and age_group != "All":
+        if age_group == "baby":
+            # Under 1 year old
+            query = query.filter(
+                db.or_(
+                    Pet.age_unit == "Months",
+                    db.and_(Pet.age_unit == "Years", Pet.age == 0)
+                )
+            )
+        elif age_group == "young":
+            # 1 to 3 years
+            query = query.filter(
+                Pet.age_unit == "Years",
+                Pet.age >= 1,
+                Pet.age <= 3
+            )
+        elif age_group == "adult":
+            # 4 to 7 years
+            query = query.filter(
+                Pet.age_unit == "Years",
+                Pet.age >= 4,
+                Pet.age <= 7
+            )
+        elif age_group == "senior":
+            # 8+ years
+            query = query.filter(
+                Pet.age_unit == "Years",
+                Pet.age >= 8
+            )
+
+    if has_doc == "1":
+        query = query.filter(Pet.documents.any())
+
+    all_pets = query.order_by(Pet.created_at.desc()).all()
+
+    # Get distinct available cities for quick filter dropdown
+    distinct_cities = [
+        c[0] for c in db.session.query(Pet.city)
+        .filter(Pet.status == "available", Pet.city.isnot(None), Pet.city != "")
+        .distinct()
+        .order_by(Pet.city.asc())
+        .all()
+    ]
+
+    has_filters = bool(
+        q
+        or (species and species != "All")
+        or (gender and gender != "All")
+        or (age_group and age_group != "All")
+        or (city and city != "All")
+        or has_doc == "1"
+    )
 
     return render_template(
         "pets/list.html",
-        pets=all_pets
+        pets=all_pets,
+        q=q,
+        species=species,
+        gender=gender,
+        age_group=age_group,
+        city=city,
+        cities=distinct_cities,
+        has_doc=has_doc,
+        has_filters=has_filters
     )
 
 
@@ -471,9 +572,58 @@ def edit_pet(pet_id):
         pet.name = request.form["name"]
         pet.species = request.form["species"]
         pet.breed = request.form["breed"]
-        pet.age = request.form["age"]
+        pet.city = request.form.get("city", "").strip()
+        age_val = request.form.get("age", "").strip()
+        pet.age = int(age_val) if age_val.isdigit() else None
+        pet.age_unit = request.form.get("age_unit", "Years")
         pet.gender = request.form["gender"]
         pet.description = request.form["description"]
+        pet.pet_source = request.form.get("pet_source", pet.pet_source or "Not Specified")
+        pet.vaccination_status = request.form.get("vaccination_status", pet.vaccination_status or "Not Specified")
+
+        # Optional new image upload
+        image = request.files.get("image")
+        if image and image.filename:
+            if allowed_file(image.filename):
+                if pet.image:
+                    old_path = os.path.join(current_app.config["UPLOAD_FOLDER"], pet.image)
+                    if os.path.exists(old_path):
+                        try:
+                            os.remove(old_path)
+                        except OSError:
+                            pass
+                ext = image.filename.rsplit(".", 1)[1].lower()
+                image_filename = f"{uuid.uuid4().hex}.{ext}"
+                image.save(os.path.join(current_app.config["UPLOAD_FOLDER"], image_filename))
+                pet.image = image_filename
+
+        # Optional new document(s) upload
+        doc_files = request.files.getlist("documents")
+        single_doc = request.files.get("document")
+        if single_doc and single_doc.filename and single_doc not in doc_files:
+            doc_files.append(single_doc)
+
+        doc_type = request.form.get("doc_type", "General Document")
+        for doc_file in doc_files:
+            if doc_file and doc_file.filename:
+                if not allowed_doc_file(doc_file.filename):
+                    flash(
+                        f"Skipped document '{doc_file.filename}': invalid type. Allowed: PDF, JPG, PNG, WEBP.",
+                        "warning"
+                    )
+                    continue
+                ext = doc_file.filename.rsplit(".", 1)[1].lower()
+                doc_filename = f"doc_{uuid.uuid4().hex}.{ext}"
+                doc_path = os.path.join(current_app.config["UPLOAD_FOLDER"], doc_filename)
+                doc_file.save(doc_path)
+
+                new_doc = PetDocument(
+                    pet_id=pet.id,
+                    filename=doc_filename,
+                    original_filename=doc_file.filename,
+                    doc_type=doc_type
+                )
+                db.session.add(new_doc)
 
         db.session.commit()
 
@@ -504,7 +654,7 @@ def edit_pet(pet_id):
     methods=["POST"]
 )
 def delete_pet(pet_id):
-    """Delete a pet listing from the platform (owner only)."""
+    """Delete a pet listing and its uploaded files (owner only)."""
     if "user_id" not in session:
         flash("Please login first.", "warning")
         return redirect(url_for("auth.login"))
@@ -524,6 +674,30 @@ def delete_pet(pet_id):
             )
         )
 
+    # Remove image file if it exists
+    if pet.image:
+        image_path = os.path.join(
+            current_app.config["UPLOAD_FOLDER"],
+            pet.image
+        )
+        if os.path.exists(image_path):
+            try:
+                os.remove(image_path)
+            except OSError:
+                pass
+
+    # Remove all uploaded document files for this pet
+    for doc in pet.documents:
+        doc_path = os.path.join(
+            current_app.config["UPLOAD_FOLDER"],
+            doc.filename
+        )
+        if os.path.exists(doc_path):
+            try:
+                os.remove(doc_path)
+            except OSError:
+                pass
+
     db.session.delete(pet)
     db.session.commit()
 
@@ -538,6 +712,52 @@ def delete_pet(pet_id):
 
 
 # =========================================================
+# PET DOCUMENTS (DOWNLOAD & DELETE)
+# =========================================================
+
+@pets.route(
+    "/pets/<int:pet_id>/document/<int:doc_id>/delete",
+    methods=["POST"]
+)
+def delete_document(pet_id, doc_id):
+    """Delete an individual document attached to a pet (owner only)."""
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    pet = Pet.query.get_or_404(pet_id)
+    if pet.owner_id != session["user_id"]:
+        flash("You are not allowed to delete documents for this pet.", "danger")
+        return redirect(url_for("pets.pet_details", pet_id=pet.id))
+
+    doc = PetDocument.query.filter_by(id=doc_id, pet_id=pet.id).first_or_404()
+    doc_path = os.path.join(current_app.config["UPLOAD_FOLDER"], doc.filename)
+    if os.path.exists(doc_path):
+        try:
+            os.remove(doc_path)
+        except OSError:
+            pass
+
+    db.session.delete(doc)
+    db.session.commit()
+
+    flash(f"Document '{doc.original_filename}' deleted.", "info")
+    return redirect(url_for("pets.edit_pet", pet_id=pet.id))
+
+
+@pets.route("/pets/document/<int:doc_id>/download")
+def download_document(doc_id):
+    """Download an uploaded pet document with its original filename."""
+    doc = PetDocument.query.get_or_404(doc_id)
+    return send_from_directory(
+        current_app.config["UPLOAD_FOLDER"],
+        doc.filename,
+        as_attachment=True,
+        download_name=doc.original_filename
+    )
+
+
+# =========================================================
 # ADD PET
 # =========================================================
 
@@ -546,7 +766,7 @@ def delete_pet(pet_id):
     methods=["GET", "POST"]
 )
 def add_pet():
-    """Create and publish a new pet listing with optional image upload."""
+    """Create and publish a new pet listing with optional image and documents."""
     if "user_id" not in session:
         flash(
             "Please login to add a pet.",
@@ -558,9 +778,14 @@ def add_pet():
         name = request.form["name"]
         species = request.form["species"]
         breed = request.form["breed"]
-        age = request.form["age"]
+        city = request.form.get("city", "").strip()
+        age_val = request.form.get("age", "").strip()
+        age = int(age_val) if age_val.isdigit() else None
+        age_unit = request.form.get("age_unit", "Years")
         gender = request.form["gender"]
         description = request.form["description"]
+        pet_source = request.form.get("pet_source", "Not Specified")
+        vaccination_status = request.form.get("vaccination_status", "Not Specified")
 
         # Handle file upload for the pet image
         image = request.files.get("image")
@@ -596,14 +821,51 @@ def add_pet():
             name=name,
             species=species,
             breed=breed,
+            city=city,
             age=age,
+            age_unit=age_unit,
             gender=gender,
             description=description,
+            pet_source=pet_source,
+            vaccination_status=vaccination_status,
             image=image_filename,
             owner_id=session["user_id"]
         )
 
         db.session.add(new_pet)
+        db.session.flush()
+
+        # Handle optional document uploads (certificates, paperwork)
+        doc_files = request.files.getlist("documents")
+        single_doc = request.files.get("document")
+        if single_doc and single_doc.filename and single_doc not in doc_files:
+            doc_files.append(single_doc)
+
+        doc_type = request.form.get("doc_type", "General Document")
+        for doc_file in doc_files:
+            if doc_file and doc_file.filename:
+                if not allowed_doc_file(doc_file.filename):
+                    flash(
+                        f"Skipped document '{doc_file.filename}': invalid type. Allowed: PDF, JPG, PNG, WEBP.",
+                        "warning"
+                    )
+                    continue
+                ext = doc_file.filename.rsplit(".", 1)[1].lower()
+                doc_filename = f"doc_{uuid.uuid4().hex}.{ext}"
+                doc_path = os.path.join(
+                    current_app.config["UPLOAD_FOLDER"],
+                    doc_filename
+                )
+                doc_file.save(doc_path)
+
+                new_doc = PetDocument(
+                    pet_id=new_pet.id,
+                    filename=doc_filename,
+                    original_filename=doc_file.filename,
+                    doc_type=doc_type
+                )
+                db.session.add(new_doc)
+
         db.session.commit()
 
         flash(
