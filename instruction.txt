@@ -1,0 +1,19 @@
+When wanting to share a link to someone else it cannot be done as I am running on localhost.
+
+So first run in Terminal 1 the following command:
+flask run --host=0.0.0.0 --port=5001
+
+Then in another Terminal 2 run:
+ngrok http 5001
+
+You'll see a screen like this in Terminal 2:
+
+Forwarding   https://abc123.ngrok-free.app -> http://localhost:5001
+
+Copy that https:// link and share it with anyone!
+
+
+
+To stop Flask or ngrok in a terminal:
+Press Ctrl + C in each terminal
+That's it! It stops the running process. Do it in both terminals (Flask one first, then ngrok).

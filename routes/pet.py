@@ -661,8 +661,8 @@ def delete_pet(pet_id):
 
     pet = Pet.query.get_or_404(pet_id)
 
-    # Security check: Ensure only the listing creator can delete
-    if pet.owner_id != session["user_id"]:
+    # Security check: Only the listing creator or admin can delete
+    if pet.owner_id != session["user_id"] and session.get("role") != "admin":
         flash(
             "You are not allowed to delete this pet.",
             "danger"
@@ -706,8 +706,12 @@ def delete_pet(pet_id):
         "success"
     )
 
+    # Redirect admin back to admin panel, owner back to their pets
+    if session.get("role") == "admin":
+        return redirect(url_for("admin.manage_pets"))
+
     return redirect(
-        url_for("pets.pet_list")
+        url_for("pets.my_pets")
     )
 
 
